@@ -33,8 +33,6 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('equipamentos', EquipamentoController::class);
 
-    Route::resource('fabricantes', FabricanteController::class);
-
     Route::resource('produtos', ProdutoController::class);
 
 
