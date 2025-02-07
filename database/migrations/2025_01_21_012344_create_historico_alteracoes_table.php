@@ -10,13 +10,11 @@ return new class extends Migration
     {
         Schema::create('historico_alteracoes', function (Blueprint $table) {
             $table->id();
-            $table->string('tipo');
-            $table->text('descricao');
-            $table->timestamp('data')->default(now());
-            $table->foreignId('usuario_id')
-                  ->constrained('users')
-                  ->onDelete('cascade');
-            $table->unsignedBigInteger('referencia_id')->nullable(); 
+            $table->string('descricao');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('maquina_id')->nullable()->constrained('maquinas')->onDelete('set null');
+            $table->foreignId('equipamento_id')->nullable()->constrained('equipamentos')->onDelete('set null');
+            $table->timestamp('alterado_em')->useCurrent();
             $table->timestamps();
         });
     }

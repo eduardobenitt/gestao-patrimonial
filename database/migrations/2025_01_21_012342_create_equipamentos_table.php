@@ -11,12 +11,10 @@ return new class extends Migration
         Schema::create('equipamentos', function (Blueprint $table) {
             $table->id();
             $table->string('patrimonio')->unique();
-            $table->string('fabricante')->nullable(); 
-            $table->text('especificacoes')->nullable(); 
-            $table->foreignId('maquina_id')->nullable() 
-                  ->constrained('maquinas')
-                  ->onDelete('set null');
-            $table->timestamps(); 
+            $table->string('fabricante')->nullable();
+            $table->text('especificacoes')->nullable();
+            $table->foreignId('maquina_id')->nullable()->constrained('maquinas')->onDelete('cascade');
+            $table->timestamps();
         });
     }
 

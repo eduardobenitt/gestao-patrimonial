@@ -14,10 +14,10 @@ return new class extends Migration
             $table->string('funcao')->nullable(); 
             $table->string('equipe')->nullable(); 
             $table->string('ramal', 20)->nullable(); 
-            $table->string('turno')->nullable(); 
+            $table->enum('turno', ['Integral', 'Manhã', 'Tarde'])->nullable(); 
             $table->string('email')->unique();
             $table->string('unidade')->nullable(); 
-            $table->boolean('status')->default(true); 
+            $table->enum('status', ['Ativo', 'Inativo'])->default('Ativo'); 
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
