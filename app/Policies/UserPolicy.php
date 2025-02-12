@@ -28,7 +28,7 @@ class UserPolicy
      */
     public function create(User $authUser): bool
     {
-        return $authUser->isAdmin();
+        return true;
     }
 
     /**
