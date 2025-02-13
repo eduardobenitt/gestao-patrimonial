@@ -5,7 +5,7 @@
 @section('content')
     <h1>Usuários</h1>
     <a href="{{ route('users.create') }}">Adicionar Usuário</a>
-    <table>
+    <table class="table table-striped table-bordered">
         <thead>
             <tr>
                 <th>Nome</th>
@@ -30,12 +30,23 @@
                     <td>{{ $user->turno }}</td>
                     <td>
                         <a href="{{ route('users.show', $user->id) }}">Ver</a>
+
                         <a href="{{ route('users.edit', $user->id) }}">Editar</a>
-                        <form action="{{ route('users.destroy', $user->id) }}" method="POST" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit">Excluir</button>
-                        </form>
+
+                        
+                        <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#confirmModal"
+                            data-action="{{ route('users.inactivate', $user->id) }}"
+                            data-message="Tem certeza que deseja inativar este usuário?">
+                            Inativar
+                        </button>
+
+                        
+                        <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmModal"
+                            data-action="{{ route('users.destroy', $user->id) }}"
+                            data-message="Tem certeza que deseja excluir este usuário permanentemente?">
+                            Excluir
+                        </button>
+
                     </td>
                 </tr>
             @endforeach
