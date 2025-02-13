@@ -32,10 +32,14 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('users/{user}/promote', [UserController::class, 'promoteToTecnico'])->name('users.promote');
     });
 
+    
     Route::resource('users', UserController::class)->except(['create', 'store']);
-    Route::get('/maquinas/index', [MaquinaController::class, 'index'])->name('maquinas.index');
-    Route::get('/equipamentos/index', [EquipamentoController::class, 'index'])->name('equipamentos.index');
-    Route::get('/produtos/index', [ProdutoController::class, 'index'])->name('produtos.index');
+    Route::post('users/inactivate',[UserController::class, 'inactivate'])->name('users.inactivate');
+
+    Route::resource('produtos', ProdutoController::class);
+    Route::resource('maquinas', MaquinaController::class);
+    Route::resource('equipamentos', EquipamentoController::class);
+
 });
 
 require __DIR__.'/auth.php';
