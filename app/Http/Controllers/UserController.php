@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\Translation\CatalogueMetadataAwareInterface;
 
 class UserController extends Controller
 {
@@ -75,23 +76,34 @@ class UserController extends Controller
 
  
     public function update(Request $request, User $user){
+    
+        try{
 
-    $validated = $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'required|email|unique:users,email,' . $user->id, 
-        'funcao' => 'nullable|string|max:255',
-        'equipe' => 'nullable|string|max:255',
-        'ramal' => 'nullable|string|max:20',
-        'turno' => 'nullable|in:Integral,Manhã,Tarde',
-        'unidade' => 'nullable|string|max:255',
-        'role' => 'required|in:usuario,tecnico,admin',
-        'status' => 'required|in:Ativo,Inativo',
-    ]);
+            if (User::where('name', $request->name)->where('id', '!=', $user->id)->exists()) {
+                return redirect()->back()->withErrors(['name' => 'O nome já está em uso.'])->withInput();
+            }
 
-    $user->update($validated);
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users,email,' . $user->id, 
+                'funcao' => 'nullable|string|max:255',
+                'equipe' => 'nullable|string|max:255',
+                'ramal' => 'nullable|string|max:20',
+                'turno' => 'nullable|in:Integral,Manhã,Tarde',
+                'unidade' => 'nullable|string|max:255',
+                'role' => 'required|in:usuario,tecnico,admin',
+                'status' => 'required|in:Ativo,Inativo',
+            ]);
+        
+            $user->update($validated);
+        
+            return redirect()->route('users.index')->with('success', 'Usuário atualizado com sucesso!');      
 
-    return redirect()->route('users.index')->with('success', 'Usuário atualizado com sucesso!');
+        } catch(\Exception $e){
+            return redirect()->back()->withErrors(['error' => 'Erro ao editar usuário.'])->withInput(); 
+        }
 
+    
     }
 
   

@@ -15,35 +15,47 @@
                         <!-- Nome -->
                         <div>
                             <x-input-label for="name" :value="__('Name')" />
-                            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" value="{{ $user->name }}" required autofocus />
+                            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name"
+                                value="{{ $user->name }}" required autofocus />
                             <x-input-error :messages="$errors->get('name')" class="mt-2" />
+
+                            {{-- 
+                            <@if ($errors->has('name'))
+                                <div class="text-danger">{{ $errors->first('name') }}</div>
+                            @endif
+                             --}}
+                            
                         </div>
 
                         <!-- Email -->
                         <div class="mt-4">
                             <x-input-label for="email" :value="__('Email')" />
-                            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" value="{{ $user->email }}" required />
+                            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email"
+                                value="{{ $user->email }}" required />
                             <x-input-error :messages="$errors->get('email')" class="mt-2" />
                         </div>
 
                         <!-- Função -->
                         <div class="mt-4">
                             <x-input-label for="funcao" :value="__('Função')" />
-                            <x-text-input id="funcao" class="block mt-1 w-full" type="text" name="funcao" value="{{ $user->funcao }}" />
+                            <x-text-input id="funcao" class="block mt-1 w-full" type="text" name="funcao"
+                                value="{{ $user->funcao }}" />
                             <x-input-error :messages="$errors->get('funcao')" class="mt-2" />
                         </div>
 
                         <!-- Equipe -->
                         <div class="mt-4">
                             <x-input-label for="equipe" :value="__('Equipe')" />
-                            <x-text-input id="equipe" class="block mt-1 w-full" type="text" name="equipe" value="{{ $user->equipe }}" />
+                            <x-text-input id="equipe" class="block mt-1 w-full" type="text" name="equipe"
+                                value="{{ $user->equipe }}" />
                             <x-input-error :messages="$errors->get('equipe')" class="mt-2" />
                         </div>
 
                         <!-- Ramal -->
                         <div class="mt-4">
                             <x-input-label for="ramal" :value="__('Ramal')" />
-                            <x-text-input id="ramal" class="block mt-1 w-full" type="text" name="ramal" value="{{ $user->ramal }}" />
+                            <x-text-input id="ramal" class="block mt-1 w-full" type="text" name="ramal"
+                                value="{{ $user->ramal }}" />
                             <x-input-error :messages="$errors->get('ramal')" class="mt-2" />
                         </div>
 
@@ -51,7 +63,8 @@
                         <div class="mt-4">
                             <x-input-label for="turno" :value="__('Turno')" />
                             <select id="turno" name="turno" class="block mt-1 w-full">
-                                <option value="Integral" {{ $user->turno === 'Integral' ? 'selected' : '' }}>Integral</option>
+                                <option value="Integral" {{ $user->turno === 'Integral' ? 'selected' : '' }}>Integral
+                                </option>
                                 <option value="Manhã" {{ $user->turno === 'Manhã' ? 'selected' : '' }}>Manhã</option>
                                 <option value="Tarde" {{ $user->turno === 'Tarde' ? 'selected' : '' }}>Tarde</option>
                             </select>
@@ -61,7 +74,8 @@
                         <!-- Unidade -->
                         <div class="mt-4">
                             <x-input-label for="unidade" :value="__('Unidade')" />
-                            <x-text-input id="unidade" class="block mt-1 w-full" type="text" name="unidade" value="{{ $user->unidade }}" />
+                            <x-text-input id="unidade" class="block mt-1 w-full" type="text" name="unidade"
+                                value="{{ $user->unidade }}" />
                             <x-input-error :messages="$errors->get('unidade')" class="mt-2" />
                         </div>
 
@@ -81,10 +95,17 @@
                             <x-input-label for="status" :value="__('Status')" />
                             <select id="status" name="status" class="block mt-1 w-full">
                                 <option value="Ativo" {{ $user->status === 'Ativo' ? 'selected' : '' }}>Ativo</option>
-                                <option value="Inativo" {{ $user->status === 'Inativo' ? 'selected' : '' }}>Inativo</option>
+                                <option value="Inativo" {{ $user->status === 'Inativo' ? 'selected' : '' }}>Inativo
+                                </option>
                             </select>
                             <x-input-error :messages="$errors->get('status')" class="mt-2" />
                         </div>
+
+                        @if ($errors->has('error'))
+                            <div class="alert alert-danger">
+                                {{ $errors->first('error') }}
+                            </div>
+                        @endif
 
                         <!-- Botão de Salvar -->
                         <div class="mt-4">
@@ -93,7 +114,7 @@
                             </x-primary-button>
                         </div>
                     </form>
-                    
+
                 </div>
             </div>
         </div>

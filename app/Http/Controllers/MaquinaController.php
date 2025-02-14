@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Maquina;
 use Illuminate\Http\Request;
 
 class MaquinaController extends Controller
@@ -9,7 +10,8 @@ class MaquinaController extends Controller
     
     public function index()
     {
-        //
+        $maquinas = Maquina::orderBy('patrimonio')->get();
+        return view("maquinas.index", compact("maquinas"));
     }
 
    

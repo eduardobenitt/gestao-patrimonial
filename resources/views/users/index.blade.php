@@ -22,7 +22,15 @@
             @foreach ($users as $user)
                 <tr>
                     <td>{{ $user->name }}</td>
+                    @if ($errors->has('name'))
+                        <div class="text-danger">{{ $errors->first('name') }}</div>
+                    @endif
+
                     <td>{{ $user->email }}</td>
+                    @if ($errors->has('email'))
+                        <div class="text-danger">{{ $errors->first('email') }}</div>
+                    @endif
+
                     <td>{{ $user->ramal }}</td>
                     <td>{{ $user->equipe }}</td>
                     <td>{{ $user->funcao }}</td>
@@ -33,14 +41,14 @@
 
                         <a href="{{ route('users.edit', $user->id) }}">Editar</a>
 
-                        
+
                         <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#confirmModal"
                             data-action="{{ route('users.inactivate', $user->id) }}"
                             data-message="Tem certeza que deseja inativar este usuário?">
                             Inativar
                         </button>
 
-                        
+
                         <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmModal"
                             data-action="{{ route('users.destroy', $user->id) }}"
                             data-message="Tem certeza que deseja excluir este usuário permanentemente?">
@@ -52,4 +60,10 @@
             @endforeach
         </tbody>
     </table>
+    @if ($errors->has('error'))
+        <div class="alert alert-danger">
+            {{ $errors->first('error') }}
+        </div>
+    @endif
+
 @endsection

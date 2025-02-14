@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Equipamento;
 use Illuminate\Http\Request;
+
+use function Pest\Laravel\get;
 
 class EquipamentoController extends Controller
 {
     
     public function index()
-    {
-        //
+    {   
+        $equipamentos = Equipamento::orderBy('patrimonio')->get();
+        return view("equipamentos.index", compact("equipamentos"));
     }
 
     
