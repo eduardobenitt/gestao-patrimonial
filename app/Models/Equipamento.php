@@ -14,11 +14,17 @@ class Equipamento extends Model
         'produto',
         'fabricante',
         'especificacoes',
+        'status',
         'maquina_id',
+        'produto_id',
     ];
 
     public function maquina()
     {
         return $this->belongsTo(Maquina::class);
+    }
+
+    public function produto(){
+        return $this->belongsTo(Produto::class, 'produto_id');
     }
 }

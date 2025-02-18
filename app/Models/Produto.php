@@ -12,4 +12,9 @@ class Produto extends Model
     protected $fillable = [
         'nome',
     ];
+
+    public function equipamentos()
+    {
+        return $this->hasMany(Equipamento::class, 'produto_id');
+    }
 }
