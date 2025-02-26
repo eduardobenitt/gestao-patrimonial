@@ -11,15 +11,15 @@ class Maquina extends Model
 
     protected $fillable = [
         'patrimonio',
-        'marca',
+        'fabricante',
         'especificacoes',
+        'tipo',
         'status',
-        'user_id', // Chave estrangeira relacionada ao usuário
     ];
 
-    public function user()
+    public function usuarios()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsToMany(User::class, 'maquina_user');
     }
 
     public function equipamentos()

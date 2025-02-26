@@ -8,6 +8,7 @@
     <form action="{{ route('maquinas.store') }}" method="POST">
         @csrf
 
+        <!-- Patrimônio -->
         <div>
             <label for="patrimonio">Patrimônio:</label>
             <input type="text" id="patrimonio" name="patrimonio" value="{{ old('patrimonio') }}" required>
@@ -16,54 +17,123 @@
             @enderror
         </div>
 
+        <!-- Fabricante -->
         <div>
             <label for="fabricante">Fabricante:</label>
-            <input type="text" id="fabricante" name="fabricante" value="{{ old('fabricante') }}" required>
-            @error('fabricante')
-                <div style="color: red;">{{ $message }}</div>
-            @enderror
+            <input type="text" id="fabricante" name="fabricante" value="{{ old('fabricante') }}">
         </div>
 
+        <!-- Especificações -->
         <div>
             <label for="especificacoes">Especificações:</label>
-            <textarea id="especificacoes" name="especificacoes" rows="4">{{ old('especificacoes') }}</textarea>
-            @error('especificacoes')
-                <div style="color: red;">{{ $message }}</div>
-            @enderror
+            <input type="text" name="especificacoes" id="especificacoes" value="{{ old('especificacoes') }}">
         </div>
 
+        <!-- Tipo -->
+        <div>
+            <label for="tipo">Tipo:</label>
+            <select id="tipo" name="tipo">
+                <option value="notebook" {{ old('tipo') == 'notebook' ? 'selected' : '' }}>Notebook</option>
+                <option value="desktop" {{ old('tipo') == 'desktop' ? 'selected' : '' }}>Desktop</option>
+            </select>
+        </div>
 
+        <!-- Status da Máquina -->
         <div>
             <label for="status">Status:</label>
-            <select id="status" name="status">
-                <option value="em uso" {{ old('status') == 'em uso' ? 'selected' : '' }}>Em Uso</option>
-                <option value="no almoxarifado" {{ old('status') == 'no almoxarifado' ? 'selected' : '' }}>No Almoxarifado
-                </option>
+            <select id="status" name="status" onchange="toggleUsuariosField()">
+                <option value="Almoxarifado" {{ old('status') == 'Almoxarifado' ? 'selected' : '' }}>Almoxarifado</option>
+                <option value="Colaborador Integral" {{ old('status') == 'Colaborador Integral' ? 'selected' : '' }}>Colaborador Integral</option>
+                <option value="Colaborador Meio Período" {{ old('status') == 'Colaborador Meio Período' ? 'selected' : '' }}>Colaborador Meio Período</option>
             </select>
-            @error('status')
-                <div style="color: red;">{{ $message }}</div>
-            @enderror
         </div>
 
-
-        <div>
-            <label for="user_id">Usuário Vinculado:</label>
-            <select id="user_id" name="user_id">
-                <option value="">Nenhum</option>
-                @foreach ($users as $user)
-                    <option value="{{ $user->id }}" {{ old('user_id') == $user->id ? 'selected' : '' }}>
-                        {{ $user->name }}
+        <!-- Seleção de Usuário para Colaborador Integral -->
+        <div id="usuarioIntegralField" style="display: none;">
+            <label>Usuário:</label>
+            <select name="usuario_integral" class="form-control">
+                <option value="">Selecione um usuário</option>
+                @foreach ($usuariosDisponiveis as $usuario)
+                    <option value="{{ $usuario->id }}" {{ old('usuario_integral') == $usuario->id ? 'selected' : '' }}>
+                        {{ $usuario->name }}
                     </option>
                 @endforeach
             </select>
-            @error('user_id')
-                <div style="color: red;">{{ $message }}</div>
-            @enderror
         </div>
 
+        <!-- Seleção de Usuários para Colaborador Meio Período -->
+        <div id="usuarioMeioPeriodoField" style="display: none;">
+            <label>Manhã:</label>
+            <select id="usuarioManha" name="usuarios[0][id]" class="form-control" onchange="filtrarUsuarios()">
+                <option value="">Selecione um usuário</option>
+                @foreach ($usuariosDisponiveis as $usuario)
+                    <option value="{{ $usuario->id }}" {{ old('usuarios.0.id') == $usuario->id ? 'selected' : '' }}>
+                        {{ $usuario->name }}
+                    </option>
+                @endforeach
+            </select>
+
+            <label>Tarde:</label>
+            <select id="usuarioTarde" name="usuarios[1][id]" class="form-control">
+                <option value="">Selecione um usuário</option>
+                @foreach ($usuariosDisponiveis as $usuario)
+                    <option value="{{ $usuario->id }}" {{ old('usuarios.1.id') == $usuario->id ? 'selected' : '' }}>
+                        {{ $usuario->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
 
         <div>
             <button type="submit">Salvar Máquina</button>
         </div>
     </form>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            toggleUsuariosField(); // Ajusta os campos conforme o status selecionado ao carregar a página
+        });
+
+        function toggleUsuariosField() {
+            var status = document.getElementById("status").value;
+            var usuarioIntegralField = document.getElementById("usuarioIntegralField");
+            var usuarioMeioPeriodoField = document.getElementById("usuarioMeioPeriodoField");
+            var usuarioIntegralSelect = usuarioIntegralField.querySelector("select");
+            var usuarioManhaSelect = document.getElementById("usuarioManha");
+            var usuarioTardeSelect = document.getElementById("usuarioTarde");
+
+            if (status === "Colaborador Integral") {
+                usuarioIntegralField.style.display = "block";
+                usuarioMeioPeriodoField.style.display = "none";
+                usuarioIntegralSelect.disabled = false;
+                usuarioManhaSelect.disabled = true;
+                usuarioTardeSelect.disabled = true;
+            } else if (status === "Colaborador Meio Período") {
+                usuarioIntegralField.style.display = "none";
+                usuarioMeioPeriodoField.style.display = "block";
+                usuarioIntegralSelect.disabled = true;
+                usuarioManhaSelect.disabled = false;
+                usuarioTardeSelect.disabled = false;
+            } else {
+                usuarioIntegralField.style.display = "none";
+                usuarioMeioPeriodoField.style.display = "none";
+                usuarioIntegralSelect.disabled = true;
+                usuarioManhaSelect.disabled = true;
+                usuarioTardeSelect.disabled = true;
+            }
+        }
+
+        function filtrarUsuarios() {
+            var manha = document.getElementById("usuarioManha").value;
+            var tardeSelect = document.getElementById("usuarioTarde");
+
+            for (var i = 0; i < tardeSelect.options.length; i++) {
+                if (tardeSelect.options[i].value === manha && manha !== "") {
+                    tardeSelect.options[i].disabled = true;
+                } else {
+                    tardeSelect.options[i].disabled = false;
+                }
+            }
+        }
+    </script>
 @endsection

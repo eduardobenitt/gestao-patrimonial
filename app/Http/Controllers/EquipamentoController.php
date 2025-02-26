@@ -70,9 +70,30 @@ class EquipamentoController extends Controller
     }
 
     
-    public function update(Request $request, string $id)
+    public function update(Request $request, Equipamento $equipamento)
     {
-        //
+        try{
+
+            $validated = $request->validate([
+                'patrimonio' => 'required|string|unique:equipamentos,patrimonio,' . $equipamento->id, 
+                'fabricante' => 'nullable|string|max:255',
+                'especificacoes' => 'nullable|string|max:255',
+                'maquina_id' => 'nullable|exists:maquinas,id',
+                'produto_id' => 'nullable|exists:produtos,id',
+                'status' => 'nullable|in:Almoxarifado, Em Uso',
+            ]);
+
+            if($validated['status'] === 'Em Uso' && empty($validated[',maquina_id'])){
+               return redirect()->back()->withErrors(['maquina_id' => 'Uma máquina deve ser selecionada para equipamentos "Em Uso".'])->withInput();  
+            }
+
+            $equipamento->update($validated);
+
+            return redirect()->route('equipamentos.index')->with('success', 'Equipamento atualizado com sucesso!');
+
+        }catch(\Exception $e) {
+            return redirect()->back()->withErrors(['error' => 'Erro ao editar equipamento.'])->withInput();
+        }
     }
 
     

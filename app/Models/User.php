@@ -34,20 +34,9 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    /**
-     * Relacionamento 1:1 com a tabela `maquinas`.
-     */
     public function maquina()
     {
-        return $this->hasOne(Maquina::class);
-    }
-
-    /**
-     * Relacionamento Many-to-Many com `maquinas` via tabela intermediária `maquina_user`.
-     */
-    public function maquinas()
-    {
-        return $this->belongsToMany(Maquina::class, 'maquina_user')->withPivot('turno');
+        return $this->belongsToMany(Maquina::class, 'maquina_user');
     }
 
     /**
