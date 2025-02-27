@@ -3,8 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Maquina;
+use Illuminate\Auth\Events\Validated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+
+use function Pest\Laravel\delete;
+use function Pest\Laravel\withCookie;
 
 class MaquinaController extends Controller
 {
@@ -28,15 +32,15 @@ class MaquinaController extends Controller
                 'patrimonio' => 'required|string|unique:maquinas,patrimonio|max:255',
                 'fabricante' => 'nullable|string|max:25',
                 'especificacoes' => 'nullable|string|max:255',
-                'tipo' => 'required|in:notebook, desktop',
-                'status' => 'required|in:Almoxarifado,Colaborador Integral, Colaborador Meio Período',
+                'tipo' => 'required|in:notebook,desktop',
+                'status' => 'required|in:Almoxarifado,Colaborador Integral,Colaborador Meio Período',
             ];
 
             if($request->status === 'Colaborador Integral'){
                 $rules['usuario_integral'] = 'required|exists:users,id';
             } elseif($request->status === 'Colaborador Meio Período'){
                 $rules['usuarios'] = 'required|array|size:2';
-                $rules['usuarios.*.id'] = 'required|exists:users,id';
+                $rules['usuarios.*'] = 'required|exists:users,id';
             }
 
             $validated = $request->validate($rules);
@@ -52,10 +56,9 @@ class MaquinaController extends Controller
             if($validated['status'] === 'Colaborador Integral'){
                 $maquina->usuarios()->attach($validated['usuario_integral']);
             }elseif ($validated['status'] === 'Colaborador Meio Período'){
-                $usuarioIds = array_map(function ($item){
-                    return $item['id'];
-                }, $validated['usuarios']);
-                $maquina->usuarios()->attach($usuarioIds);
+                foreach ($validated['usuarios'] as $usuariosIds){
+                    $maquina->usuarios()->attach($usuariosIds);
+                }
             }
 
             return redirect()->route('maquinas.index')->with('success', 'Máquina cadastrada com sucesso!');
@@ -80,8 +83,18 @@ class MaquinaController extends Controller
         //
     }
 
-    public function destroy(string $id)
+    public function destroy(Request $request, Maquina $maquina)
     {
-        //
+        try{
+
+            $maquina->usuarios()->detach();
+
+            $maquina->delete();
+
+            return redirect()->route('maquinas.index')->with('success','Maquina excluída com Sucesso!');
+
+        }catch(\Exception $e){
+            return redirect()->back()->withErrors(['error' => 'Erro ao excluir a máquina.'])->withInput();
+        }
     }
 }

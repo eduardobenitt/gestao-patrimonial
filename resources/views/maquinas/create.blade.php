@@ -64,20 +64,20 @@
         <!-- Seleção de Usuários para Colaborador Meio Período -->
         <div id="usuarioMeioPeriodoField" style="display: none;">
             <label>Manhã:</label>
-            <select id="usuarioManha" name="usuarios[0][id]" class="form-control" onchange="filtrarUsuarios()">
+            <select id="usuarioManha" name="usuarios[]" class="form-control" onchange="filtrarUsuarios()">
                 <option value="">Selecione um usuário</option>
                 @foreach ($usuariosDisponiveis as $usuario)
-                    <option value="{{ $usuario->id }}" {{ old('usuarios.0.id') == $usuario->id ? 'selected' : '' }}>
+                    <option value="{{ $usuario->id }}" {{ old('usuarios.0') == $usuario->id ? 'selected' : '' }}>
                         {{ $usuario->name }}
                     </option>
                 @endforeach
             </select>
 
             <label>Tarde:</label>
-            <select id="usuarioTarde" name="usuarios[1][id]" class="form-control">
+            <select id="usuarioTarde" name="usuarios[]" class="form-control">
                 <option value="">Selecione um usuário</option>
                 @foreach ($usuariosDisponiveis as $usuario)
-                    <option value="{{ $usuario->id }}" {{ old('usuarios.1.id') == $usuario->id ? 'selected' : '' }}>
+                    <option value="{{ $usuario->id }}" {{ old('usuarios.1') == $usuario->id ? 'selected' : '' }}>
                         {{ $usuario->name }}
                     </option>
                 @endforeach

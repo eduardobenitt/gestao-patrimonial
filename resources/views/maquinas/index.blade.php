@@ -44,7 +44,7 @@
                         @if ($maquina->usuarios->isNotEmpty())
                             @foreach ($maquina->usuarios as $usuario)
                                 <span class="badge bg-primary">
-                                    {{ $usuario->name }} ({{ $usuario->pivot->turno }})
+                                    {{ $usuario->name }}
                                 </span>
                             @endforeach
                         @else
