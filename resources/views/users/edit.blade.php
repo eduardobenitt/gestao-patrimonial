@@ -19,12 +19,12 @@
                                 value="{{ $user->name }}" required autofocus />
                             <x-input-error :messages="$errors->get('name')" class="mt-2" />
 
-                            {{-- 
+                            {{--
                             <@if ($errors->has('name'))
                                 <div class="text-danger">{{ $errors->first('name') }}</div>
                             @endif
                              --}}
-                            
+
                         </div>
 
                         <!-- Email -->

@@ -24,7 +24,8 @@ class Equipamento extends Model
         return $this->belongsTo(Maquina::class);
     }
 
-    public function produto(){
+    public function produto()
+    {
         return $this->belongsTo(Produto::class, 'produto_id');
     }
 }

@@ -13,7 +13,7 @@ class UserController extends Controller
     public function index()
     {
         $users = User::orderBy('name')->get();
-        return view("users.index",compact('users'));
+        return view("users.index", compact('users'));
     }
 
 
@@ -23,8 +23,9 @@ class UserController extends Controller
     }
 
 
-    public function store(Request $request){
-        try{
+    public function store(Request $request)
+    {
+        try {
 
             if (User::where('name', $request->name)->exists()) {
                 return redirect()->back()->withErrors(['name' => 'O nome já está em uso.'])->withInput();
@@ -57,11 +58,9 @@ class UserController extends Controller
             ]);
 
             return redirect()->route('login')->with('success', 'Usuário cadastrado com sucesso!');
-
         } catch (\Exception $e) {
             return redirect()->back()->withErrors(['error' => 'Erro ao cadastrar usuário.'])->withInput();
         }
-
     }
 
 
@@ -70,14 +69,16 @@ class UserController extends Controller
         //
     }
 
-    public function edit(User $user){
-        return view('users.edit',compact('user'));
+    public function edit(User $user)
+    {
+        return view('users.edit', compact('user'));
     }
 
 
-    public function update(Request $request, User $user){
+    public function update(Request $request, User $user)
+    {
 
-        try{
+        try {
 
             if (User::where('name', $request->name)->where('id', '!=', $user->id)->exists()) {
                 return redirect()->back()->withErrors(['name' => 'O nome já está em uso.'])->withInput();
@@ -98,29 +99,27 @@ class UserController extends Controller
             $user->update($validated);
 
             return redirect()->route('users.index')->with('success', 'Usuário atualizado com sucesso!');
-
-        } catch(\Exception $e){
+        } catch (\Exception $e) {
             return redirect()->back()->withErrors(['error' => 'Erro ao editar usuário.'])->withInput();
         }
-
-
     }
 
 
-    public function destroy(Request $request, User $user){
+    public function destroy(Request $request, User $user)
+    {
 
-        $user -> delete();
+        $user->delete();
 
 
         return redirect()->route('users.index')->with('success', 'Usuário excluído com sucesso!');
     }
 
-    public function inactivate(User $user){
-        $user -> update([
+    public function inactivate(User $user)
+    {
+        $user->update([
             'status' => 'Inativo',
         ]);
 
         return redirect()->route('users.index')->with('success', 'Usuário inativado com sucesso!');
     }
-
 }

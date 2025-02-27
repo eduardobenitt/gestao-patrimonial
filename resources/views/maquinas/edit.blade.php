@@ -43,14 +43,14 @@
             </select>
         </div>
 
-        <!-- Seleção de Usuários -->
+        <!-- Seleção de Usuário para Colaborador Integral -->
         <div id="usuarioIntegralField" style="display: none;">
             <label>Usuário:</label>
-            <select name="usuarios[0][id]" class="form-control">
+            <select name="usuario_integral" class="form-control">
                 <option value="">Selecione um usuário</option>
                 @foreach ($usuariosDisponiveis as $usuario)
-                    <option value="{{ $usuario->id }}" 
-                        {{ old('usuarios.0.id', optional($maquina->usuarios->first())->id) == $usuario->id ? 'selected' : '' }}>
+                    <option value="{{ $usuario->id }}"
+                        {{ old('usuario_integral', $maquina->usuarios->first()->id ?? '') == $usuario->id ? 'selected' : '' }}>
                         {{ $usuario->name }}
                     </option>
                 @endforeach
@@ -60,22 +60,22 @@
         <!-- Seleção de Usuários para Colaborador Meio Período -->
         <div id="usuarioMeioPeriodoField" style="display: none;">
             <label>Manhã:</label>
-            <select name="usuarios[0][id]" class="form-control">
+            <select id="usuarioManha" name="usuarios[]" class="form-control" onchange="filtrarUsuarios()">
                 <option value="">Selecione um usuário</option>
                 @foreach ($usuariosDisponiveis as $usuario)
-                    <option value="{{ $usuario->id }}" 
-                        {{ old('usuarios.0.id', $maquina->usuarios->where('pivot.turno', 'Manhã')->first()?->id) == $usuario->id ? 'selected' : '' }}>
+                    <option value="{{ $usuario->id }}"
+                        {{ old('usuarios.0', $maquina->usuarios->first()->id ?? '') == $usuario->id ? 'selected' : '' }}>
                         {{ $usuario->name }}
                     </option>
                 @endforeach
             </select>
 
             <label>Tarde:</label>
-            <select name="usuarios[1][id]" class="form-control">
+            <select id="usuarioTarde" name="usuarios[]" class="form-control">
                 <option value="">Selecione um usuário</option>
                 @foreach ($usuariosDisponiveis as $usuario)
-                    <option value="{{ $usuario->id }}" 
-                        {{ old('usuarios.1.id', $maquina->usuarios->where('pivot.turno', 'Tarde')->first()?->id) == $usuario->id ? 'selected' : '' }}>
+                    <option value="{{ $usuario->id }}"
+                        {{ old('usuarios.1', $maquina->usuarios->skip(1)->first()->id ?? '') == $usuario->id ? 'selected' : '' }}>
                         {{ $usuario->name }}
                     </option>
                 @endforeach
@@ -106,6 +106,19 @@
             } else {
                 usuarioIntegralField.style.display = "none";
                 usuarioMeioPeriodoField.style.display = "none";
+            }
+        }
+
+        function filtrarUsuarios() {
+            var manha = document.getElementById("usuarioManha").value;
+            var tardeSelect = document.getElementById("usuarioTarde");
+
+            for (var i = 0; i < tardeSelect.options.length; i++) {
+                if (tardeSelect.options[i].value === manha && manha !== "") {
+                    tardeSelect.options[i].disabled = true;
+                } else {
+                    tardeSelect.options[i].disabled = false;
+                }
             }
         }
     </script>
