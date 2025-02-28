@@ -15,7 +15,9 @@ class MaquinaController extends Controller
     public function index()
     {
 
-        $maquinas = Maquina::orderBy('patrimonio')->get();
+        $maquinas = Maquina::with(['usuarios', 'equipamentos.produto'])
+            ->orderBy('patrimonio')
+            ->get();
         return view('maquinas.index', compact('maquinas'));
     }
 

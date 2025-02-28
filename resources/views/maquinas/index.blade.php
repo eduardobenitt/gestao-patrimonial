@@ -16,6 +16,7 @@
                 <th scope="col">Tipo</th>
                 <th scope="col">Status</th>
                 <th scope="col">Usuário(s) Vinculado(s)</th>
+                <th scope="col">Equipamentos Vinculados</th>
                 <th scope="col">Editar</th>
                 <th scope="col">Excluir</th>
             </tr>
@@ -49,6 +50,22 @@
                             @endforeach
                         @else
                             <span class="text-muted">Nenhum usuário</span>
+                        @endif
+                    </td>
+
+                    <!-- Equipamentos Vinculados -->
+                    <td>
+                        @if ($maquina->equipamentos->isNotEmpty())
+                            <ul style="list-style-type: none; padding: 0; margin: 0;">
+                                @foreach ($maquina->equipamentos as $equipamento)
+                                    <li>
+                                        <strong>{{ $equipamento->produto->nome ?? 'Produto não definido' }}</strong> -
+                                        {{ $equipamento->patrimonio }}
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @else
+                            <span class="text-muted">Nenhum equipamento</span>
                         @endif
                     </td>
 
