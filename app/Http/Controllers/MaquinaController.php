@@ -125,8 +125,8 @@ class MaquinaController extends Controller
 
     public function edit(Maquina $maquina)
     {
-        $equipamentos = Equipamento::orderBy('patrimonio')->get();
-        $usuariosDisponiveis = \App\Models\User::orderBy('name')->get();
+        $equipamentos = Equipamento::whereNull('maquina_id')->orWhere('maquina_id', $maquina->id)->orderBy('patrimonio')->get();
+        $usuariosDisponiveis = User::orderBy('name')->get();
         return view('maquinas.edit', compact('maquina', 'usuariosDisponiveis', 'equipamentos'));
     }
 
