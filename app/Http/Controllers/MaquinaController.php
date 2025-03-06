@@ -3,15 +3,27 @@
 namespace App\Http\Controllers;
 
 use App\Models\Maquina;
+use App\Models\User;
+use App\Models\Equipamento;
+use App\Models\HistoricoAlteracao;
 use Illuminate\Auth\Events\Validated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Services\HistoricoAlteracaoService;
 
 use function Pest\Laravel\delete;
 use function Pest\Laravel\withCookie;
 
 class MaquinaController extends Controller
 {
+    protected $historicoService;
+
+    public function __construct(HistoricoAlteracaoService $historicoService)
+    {
+        $this->historicoService = $historicoService;
+    }
+
+
     public function index()
     {
 
@@ -23,9 +35,9 @@ class MaquinaController extends Controller
 
     public function create()
     {
-
-        $usuariosDisponiveis = \App\Models\User::orderBy('name')->get();
-        return view('maquinas.create', compact('usuariosDisponiveis'));
+        $equipamentos = Equipamento::whereNull('maquina_id')->orderBy('patrimonio')->get();
+        $usuariosDisponiveis = User::orderBy('name')->get();
+        return view('maquinas.create', compact('usuariosDisponiveis', 'equipamentos'));
     }
 
     public function store(Request $request)
@@ -66,6 +78,40 @@ class MaquinaController extends Controller
                 }
             }
 
+            $actor = auth('web')->user();
+            $descricao = $actor->name . ' - ' . HistoricoAlteracao::ATRIBUICAO;
+
+            if ($request->has('equipamentos_ids') && is_array($request->equipamentos_ids)) {
+                foreach ($request->equipamentos_ids as $equipamentoID) {
+                    $equipamento = Equipamento::find($equipamentoID);
+                    if ($equipamento) {
+                        $equipamento->update([
+                            'maquina_id' => $maquina->id,
+                            'status' => 'Em Uso',
+                        ]);
+                        if ($validated['status'] === 'Colaborador Integral') {
+                            $this->historicoService->registrar(
+                                $descricao,
+                                $validated['usuario_integral'],
+                                $maquina->id,
+                                $equipamento->id
+                            );
+                        } elseif ($validated['status'] === 'Colaborador Meio Período') {
+                            foreach ($validated['usuarios'] as $usuariosIds) {
+                                $this->historicoService->registrar(
+                                    $descricao,
+                                    $usuariosIds,
+                                    $maquina->id,
+                                    $equipamento->id
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+
+
+
             return redirect()->route('maquinas.index')->with('success', 'Máquina cadastrada com sucesso!');
         } catch (\Exception $e) {
             return redirect()->back()->withErrors(['error' => 'Erro ao cadastrar Máquina.'])->withInput();
@@ -79,9 +125,9 @@ class MaquinaController extends Controller
 
     public function edit(Maquina $maquina)
     {
-
+        $equipamentos = Equipamento::orderBy('patrimonio')->get();
         $usuariosDisponiveis = \App\Models\User::orderBy('name')->get();
-        return view('maquinas.edit', compact('maquina', 'usuariosDisponiveis'));
+        return view('maquinas.edit', compact('maquina', 'usuariosDisponiveis', 'equipamentos'));
     }
 
     public function update(Request $request, Maquina $maquina)
@@ -102,7 +148,26 @@ class MaquinaController extends Controller
                 $rules['usuarios.*'] = 'required|exists:users,id';
             }
 
+            if ($request->has('equipamentos_ids')) {
+                $rules['equipamentos_ids'] = 'array';
+                $rules['equipamentos_ids.*'] = 'exists:equipamentos,id';
+            }
+
             $validated = $request->validate($rules);
+
+            Equipamento::where('maquina_id', $maquina->id)
+                ->update([
+                    'maquina_id' => null,
+                    'status' => 'Almoxarifado',
+                ]);
+
+            if (!empty($validated['equipamentos_ids'])) {
+                Equipamento::whereIn('id', $validated['equipamentos_ids'])
+                    ->update([
+                        'maquina_id' => $maquina->id,
+                        'status' => 'Em Uso',
+                    ]);
+            }
 
             // Atualiza os dados da máquina
             $maquina->update([

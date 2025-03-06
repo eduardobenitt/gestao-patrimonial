@@ -37,9 +37,9 @@
             </select>
         </div>
 
-        
+
         <div id="maquinaField" style="display: none;">
-            <label for="maquina_id">Patrimônio da Máquina:</label>
+            <label for="maquina_id">Máquina Vinculada:</label>
             <select id="maquina_id" name="maquina_id" class="block mt-1 w-full">
                 <option value="">Selecione uma máquina</option>
                 @foreach ($maquinas as $maquina)
@@ -61,7 +61,7 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            toggleMaquinaField(); 
+            toggleMaquinaField();
         });
 
         function toggleMaquinaField() {
@@ -69,7 +69,7 @@
             var maquinaField = document.getElementById("maquinaField");
 
             if (status === "Em Uso" || status === "Em uso") {
-                maquinaField.style.display = "block"; 
+                maquinaField.style.display = "block";
             } else {
                 maquinaField.style.display = "none";
             }

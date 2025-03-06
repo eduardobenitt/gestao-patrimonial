@@ -12,7 +12,8 @@
         <!-- Patrimônio -->
         <div>
             <label for="patrimonio">Patrimônio:</label>
-            <input type="text" id="patrimonio" name="patrimonio" value="{{ old('patrimonio', $maquina->patrimonio) }}" required>
+            <input type="text" id="patrimonio" name="patrimonio"
+                   value="{{ old('patrimonio', $maquina->patrimonio) }}" required>
             @error('patrimonio')
                 <div style="color: red;">{{ $message }}</div>
             @enderror
@@ -21,7 +22,8 @@
         <!-- Fabricante -->
         <div>
             <label for="fabricante">Fabricante:</label>
-            <input type="text" id="fabricante" name="fabricante" value="{{ old('fabricante', $maquina->fabricante) }}">
+            <input type="text" id="fabricante" name="fabricante"
+                   value="{{ old('fabricante', $maquina->fabricante) }}">
         </div>
 
         <!-- Tipo -->
@@ -82,14 +84,30 @@
             </select>
         </div>
 
+        <!-- Equipamentos Vinculados (igual ao create) -->
+        <div id="equipamentoField" style="display: none;">
+            <label for="equipamentos_id">Equipamentos Vinculados:</label>
+            <select id="equipamentos_id" name="equipamentos_ids[]" class="block mt-1 w-full" multiple="multiple">
+                @foreach ($equipamentos as $equipamento)
+                    <option value="{{ $equipamento->id }}"
+                        {{-- Se houver “old('equipamentos_ids')”, prioriza-o; senão, usa os já vinculados ao $maquina --}}
+                        {{ (collect(old('equipamentos_ids', $maquina->equipamentos->pluck('id')))
+                            ->contains($equipamento->id)) ? 'selected' : '' }}>
+                        {{ $equipamento->patrimonio }} - {{ $equipamento->produto->nome }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
         <div>
             <button type="submit">Atualizar Máquina</button>
         </div>
     </form>
 
+    <!-- Scripts para mostrar/esconder os campos -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            toggleUsuariosField();
+            toggleUsuariosField(); // Chama logo ao carregar
         });
 
         function toggleUsuariosField() {
@@ -97,15 +115,21 @@
             var usuarioIntegralField = document.getElementById("usuarioIntegralField");
             var usuarioMeioPeriodoField = document.getElementById("usuarioMeioPeriodoField");
 
+            // Campo de equipamentos
+            var equipamentoField = document.getElementById("equipamentoField");
+
             if (status === "Colaborador Integral") {
                 usuarioIntegralField.style.display = "block";
                 usuarioMeioPeriodoField.style.display = "none";
+                equipamentoField.style.display = "block";
             } else if (status === "Colaborador Meio Período") {
                 usuarioIntegralField.style.display = "none";
                 usuarioMeioPeriodoField.style.display = "block";
+                equipamentoField.style.display = "block";
             } else {
                 usuarioIntegralField.style.display = "none";
                 usuarioMeioPeriodoField.style.display = "none";
+                equipamentoField.style.display = "none";
             }
         }
 
@@ -122,4 +146,15 @@
             }
         }
     </script>
+
+    <!-- Inicialização do Select2 (caso queira a mesma experiência do create) -->
+    @push('scripts')
+        <script>
+            $(document).ready(function() {
+                $('#equipamentos_id').select2({
+                    placeholder: 'Selecione os equipamentos'
+                });
+            });
+        </script>
+    @endpush
 @endsection

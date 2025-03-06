@@ -84,6 +84,19 @@
             </select>
         </div>
 
+        <div id="equipamentoField" style="display: none;">
+            <label for="equipamentos_id">Equipamentos Vinculados:</label>
+            <select id="equipamentos_id" name="equipamentos_ids[]" class="block mt-1 w-full" multiple="multiple">
+                @foreach ($equipamentos as $equipamento)
+                    <option value="{{ $equipamento->id }}"
+                        {{ (collect(old('equipamentos_ids'))->contains($equipamento->id)) ? 'selected' : '' }}>
+                        {{ $equipamento->patrimonio }} - {{ $equipamento->produto->nome }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+
         <div>
             <button type="submit">Salvar Máquina</button>
         </div>
@@ -101,6 +114,8 @@
             var usuarioIntegralSelect = usuarioIntegralField.querySelector("select");
             var usuarioManhaSelect = document.getElementById("usuarioManha");
             var usuarioTardeSelect = document.getElementById("usuarioTarde");
+            var equipamentoField = document.getElementById("equipamentoField");
+            var equipamentoSelect = equipamentoField.querySelector("select");
 
             if (status === "Colaborador Integral") {
                 usuarioIntegralField.style.display = "block";
@@ -108,18 +123,24 @@
                 usuarioIntegralSelect.disabled = false;
                 usuarioManhaSelect.disabled = true;
                 usuarioTardeSelect.disabled = true;
+                equipamentoField.style.display = "block";
+                equipamentoSelect.disabled = false;
             } else if (status === "Colaborador Meio Período") {
                 usuarioIntegralField.style.display = "none";
                 usuarioMeioPeriodoField.style.display = "block";
                 usuarioIntegralSelect.disabled = true;
                 usuarioManhaSelect.disabled = false;
                 usuarioTardeSelect.disabled = false;
+                equipamentoField.style.display = "block";
+                equipamentoSelect.disabled = false;
             } else {
                 usuarioIntegralField.style.display = "none";
                 usuarioMeioPeriodoField.style.display = "none";
                 usuarioIntegralSelect.disabled = true;
                 usuarioManhaSelect.disabled = true;
                 usuarioTardeSelect.disabled = true;
+                equipamentoField.style.display = "none";
+                equipamentoSelect.disabled = true;
             }
         }
 
@@ -136,4 +157,14 @@
             }
         }
     </script>
+
+    @push('scripts')
+        <script>
+            $(document).ready(function () {
+                $('#equipamentos_id').select2({
+                    placeholder: 'Equipamentos'
+                });
+            });
+        </script>
+    @endpush
 @endsection
