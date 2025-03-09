@@ -5,6 +5,17 @@
 @section('content')
     <h1>Editar Máquina</h1>
 
+    {{-- Exibe erros de validação, caso existam --}}
+    @if ($errors->any())
+        <div style="color: red;">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <form action="{{ route('maquinas.update', $maquina->id) }}" method="POST">
         @csrf
         @method('PUT')
@@ -24,6 +35,9 @@
             <label for="fabricante">Fabricante:</label>
             <input type="text" id="fabricante" name="fabricante"
                    value="{{ old('fabricante', $maquina->fabricante) }}">
+            @error('fabricante')
+                <div style="color: red;">{{ $message }}</div>
+            @enderror
         </div>
 
         <!-- Tipo -->
@@ -31,8 +45,11 @@
             <label for="tipo">Tipo:</label>
             <select id="tipo" name="tipo">
                 <option value="notebook" {{ old('tipo', $maquina->tipo) == 'notebook' ? 'selected' : '' }}>Notebook</option>
-                <option value="desktop" {{ old('tipo', $maquina->tipo) == 'desktop' ? 'selected' : '' }}>Desktop</option>
+                <option value="desktop"  {{ old('tipo', $maquina->tipo) == 'desktop'  ? 'selected' : '' }}>Desktop</option>
             </select>
+            @error('tipo')
+                <div style="color: red;">{{ $message }}</div>
+            @enderror
         </div>
 
         <!-- Status da Máquina -->
@@ -43,6 +60,9 @@
                 <option value="Colaborador Integral" {{ old('status', $maquina->status) == 'Colaborador Integral' ? 'selected' : '' }}>Colaborador Integral</option>
                 <option value="Colaborador Meio Período" {{ old('status', $maquina->status) == 'Colaborador Meio Período' ? 'selected' : '' }}>Colaborador Meio Período</option>
             </select>
+            @error('status')
+                <div style="color: red;">{{ $message }}</div>
+            @enderror
         </div>
 
         <!-- Seleção de Usuário para Colaborador Integral -->
@@ -57,6 +77,9 @@
                     </option>
                 @endforeach
             </select>
+            @error('usuario_integral')
+                <div style="color: red;">{{ $message }}</div>
+            @enderror
         </div>
 
         <!-- Seleção de Usuários para Colaborador Meio Período -->
@@ -82,21 +105,27 @@
                     </option>
                 @endforeach
             </select>
+
+            @error('usuarios')
+                <div style="color: red;">{{ $message }}</div>
+            @enderror
         </div>
 
-        <!-- Equipamentos Vinculados (igual ao create) -->
+        <!-- Equipamentos Vinculados -->
         <div id="equipamentoField" style="display: none;">
             <label for="equipamentos_id">Equipamentos Vinculados:</label>
             <select id="equipamentos_id" name="equipamentos_ids[]" class="block mt-1 w-full" multiple="multiple">
                 @foreach ($equipamentos as $equipamento)
                     <option value="{{ $equipamento->id }}"
-                        {{-- Se houver “old('equipamentos_ids')”, prioriza-o; senão, usa os já vinculados ao $maquina --}}
-                        {{ (collect(old('equipamentos_ids', $maquina->equipamentos->pluck('id')))
-                            ->contains($equipamento->id)) ? 'selected' : '' }}>
+                        {{ collect(old('equipamentos_ids', $maquina->equipamentos->pluck('id')))
+                            ->contains($equipamento->id) ? 'selected' : '' }}>
                         {{ $equipamento->patrimonio }} - {{ $equipamento->produto->nome }}
                     </option>
                 @endforeach
             </select>
+            @error('equipamentos_ids')
+                <div style="color: red;">{{ $message }}</div>
+            @enderror
         </div>
 
         <div>
@@ -107,29 +136,43 @@
     <!-- Scripts para mostrar/esconder os campos -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            toggleUsuariosField(); // Chama logo ao carregar
+            toggleUsuariosField();
         });
 
         function toggleUsuariosField() {
             var status = document.getElementById("status").value;
             var usuarioIntegralField = document.getElementById("usuarioIntegralField");
             var usuarioMeioPeriodoField = document.getElementById("usuarioMeioPeriodoField");
-
-            // Campo de equipamentos
+            var usuarioIntegralSelect = usuarioIntegralField.querySelector("select");
+            var usuarioManhaSelect = document.getElementById("usuarioManha");
+            var usuarioTardeSelect = document.getElementById("usuarioTarde");
             var equipamentoField = document.getElementById("equipamentoField");
+            var equipamentoSelect = equipamentoField.querySelector("select");
 
             if (status === "Colaborador Integral") {
                 usuarioIntegralField.style.display = "block";
                 usuarioMeioPeriodoField.style.display = "none";
+                usuarioIntegralSelect.disabled = false;
+                usuarioManhaSelect.disabled = true;
+                usuarioTardeSelect.disabled = true;
                 equipamentoField.style.display = "block";
+                equipamentoSelect.disabled = false;
             } else if (status === "Colaborador Meio Período") {
                 usuarioIntegralField.style.display = "none";
                 usuarioMeioPeriodoField.style.display = "block";
+                usuarioIntegralSelect.disabled = true;
+                usuarioManhaSelect.disabled = false;
+                usuarioTardeSelect.disabled = false;
                 equipamentoField.style.display = "block";
+                equipamentoSelect.disabled = false;
             } else {
                 usuarioIntegralField.style.display = "none";
                 usuarioMeioPeriodoField.style.display = "none";
+                usuarioIntegralSelect.disabled = true;
+                usuarioManhaSelect.disabled = true;
+                usuarioTardeSelect.disabled = true;
                 equipamentoField.style.display = "none";
+                equipamentoSelect.disabled = true;
             }
         }
 
@@ -147,7 +190,6 @@
         }
     </script>
 
-    <!-- Inicialização do Select2 (caso queira a mesma experiência do create) -->
     @push('scripts')
         <script>
             $(document).ready(function() {

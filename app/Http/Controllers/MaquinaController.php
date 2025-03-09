@@ -10,6 +10,7 @@ use Illuminate\Auth\Events\Validated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Services\HistoricoAlteracaoService;
+use Illuminate\Contracts\Mail\Attachable;
 
 use function Pest\Laravel\delete;
 use function Pest\Laravel\withCookie;
@@ -132,68 +133,142 @@ class MaquinaController extends Controller
 
     public function update(Request $request, Maquina $maquina)
     {
-        try {
-            $rules = [
-                'patrimonio' => 'required|string|max:255|unique:maquinas,patrimonio,' . $maquina->id,
-                'fabricante' => 'nullable|string|max:25',
-                'especificacoes' => 'nullable|string|max:255',
-                'tipo' => 'required|in:notebook,desktop',
-                'status' => 'required|in:Almoxarifado,Colaborador Integral,Colaborador Meio Período',
-            ];
+        // Iniciamos a transação
+        return DB::transaction(function () use ($request, $maquina) {
+            try {
+                // 1. Validação
+                $rules = [
+                    'patrimonio'    => 'required|string|max:255|unique:maquinas,patrimonio,' . $maquina->id,
+                    'fabricante'    => 'nullable|string|max:25',
+                    'especificacoes' => 'nullable|string|max:255',
+                    'tipo'          => 'required|in:notebook,desktop',
+                    'status'        => 'required|in:Almoxarifado,Colaborador Integral,Colaborador Meio Período',
+                ];
 
-            if ($request->status === 'Colaborador Integral') {
-                $rules['usuario_integral'] = 'required|exists:users,id';
-            } elseif ($request->status === 'Colaborador Meio Período') {
-                $rules['usuarios'] = 'required|array|size:2';
-                $rules['usuarios.*'] = 'required|exists:users,id';
-            }
+                if ($request->status === 'Colaborador Integral') {
+                    $rules['usuario_integral'] = 'required|exists:users,id';
+                } elseif ($request->status === 'Colaborador Meio Período') {
+                    $rules['usuarios']   = 'required|array|size:2';
+                    $rules['usuarios.*'] = 'required|exists:users,id';
+                }
 
-            if ($request->has('equipamentos_ids')) {
-                $rules['equipamentos_ids'] = 'array';
-                $rules['equipamentos_ids.*'] = 'exists:equipamentos,id';
-            }
+                if ($request->has('equipamentos_ids')) {
+                    $rules['equipamentos_ids']   = 'array';
+                    $rules['equipamentos_ids.*'] = 'exists:equipamentos,id';
+                }
 
-            $validated = $request->validate($rules);
+                $validated = $request->validate($rules);
 
-            Equipamento::where('maquina_id', $maquina->id)
-                ->update([
-                    'maquina_id' => null,
-                    'status' => 'Almoxarifado',
+                // 2. Descobrir equipamentos removidos/adicionados
+                $oldEquipIds = $maquina->equipamentos->pluck('id')->toArray();
+                $newEquipIds = $validated['equipamentos_ids'] ?? [];
+
+                $removedEquipIds = array_diff($oldEquipIds, $newEquipIds);
+                $addedEquipIds   = array_diff($newEquipIds, $oldEquipIds);
+
+                // 3. Se Almoxarifado, forçamos remoção de todos
+                if ($validated['status'] === 'Almoxarifado') {
+                    $removedEquipIds = $oldEquipIds;
+                    Equipamento::where('maquina_id', $maquina->id)
+                        ->update([
+                            'maquina_id' => null,
+                            'status'     => 'Almoxarifado',
+                        ]);
+                } else {
+                    // Remover só o que saiu
+                    Equipamento::whereIn('id', $removedEquipIds)
+                        ->update([
+                            'maquina_id' => null,
+                            'status'     => 'Almoxarifado',
+                        ]);
+
+                    // Adicionar só o que entrou
+                    if (!empty($addedEquipIds)) {
+                        Equipamento::whereIn('id', $addedEquipIds)
+                            ->update([
+                                'maquina_id' => $maquina->id,
+                                'status'     => 'Em Uso',
+                            ]);
+                    }
+                }
+
+                // 4. Atualiza a máquina
+                $maquina->update([
+                    'patrimonio'     => $validated['patrimonio'],
+                    'fabricante'     => $validated['fabricante'] ?? null,
+                    'especificacoes' => $validated['especificacoes'] ?? null,
+                    'tipo'           => $validated['tipo'],
+                    'status'         => $validated['status'],
                 ]);
 
-            if (!empty($validated['equipamentos_ids'])) {
-                Equipamento::whereIn('id', $validated['equipamentos_ids'])
-                    ->update([
-                        'maquina_id' => $maquina->id,
-                        'status' => 'Em Uso',
-                    ]);
+                // 5. Diferença de usuários
+                $oldUserIds = $maquina->usuarios->pluck('id')->toArray();
+                $newUserIds = [];
+
+                if ($validated['status'] === 'Colaborador Integral') {
+                    $newUserIds = [$validated['usuario_integral']];
+                } elseif ($validated['status'] === 'Colaborador Meio Período') {
+                    $newUserIds = $validated['usuarios'];
+                }
+
+                $removedUserIds = array_diff($oldUserIds, $newUserIds);
+                $addedUserIds   = array_diff($newUserIds, $oldUserIds);
+
+                // Remove só quem saiu, adiciona só quem entrou
+                if (!empty($removedUserIds)) {
+                    $maquina->usuarios()->detach($removedUserIds);
+                }
+                if (!empty($addedUserIds)) {
+                    $maquina->usuarios()->attach($addedUserIds);
+                }
+
+                // 6. Registro no histórico
+                $actor          = auth('web')->user();
+                $descricaoAtrib = $actor->name . ' - ' . HistoricoAlteracao::ATRIBUICAO;
+                $descricaoDes   = $actor->name . ' - ' . HistoricoAlteracao::DESATRIBUICAO;
+
+                // 6.1 Usuários
+                foreach ($removedUserIds as $uid) {
+                    $this->historicoService->registrar($descricaoDes, $uid, $maquina->id, null);
+                }
+                foreach ($addedUserIds as $uid) {
+                    $this->historicoService->registrar($descricaoAtrib, $uid, $maquina->id, null);
+                }
+
+                // 6.2 Equipamentos
+                $equipUserIds = [];
+                if ($validated['status'] === 'Colaborador Integral') {
+                    $equipUserIds = [$validated['usuario_integral']];
+                } elseif ($validated['status'] === 'Colaborador Meio Período') {
+                    $equipUserIds = $validated['usuarios'];
+                }
+
+                if ($validated['status'] === 'Almoxarifado') {
+                    // Desatribui tudo
+                    foreach ($removedEquipIds as $equipId) {
+                        $this->historicoService->registrar($descricaoDes, null, $maquina->id, $equipId);
+                    }
+                } else {
+                    // Desatribuição + Atribuição
+                    foreach ($equipUserIds as $uId) {
+                        foreach ($removedEquipIds as $equipId) {
+                            $this->historicoService->registrar($descricaoDes, $uId, $maquina->id, $equipId);
+                        }
+                        foreach ($addedEquipIds as $equipId) {
+                            $this->historicoService->registrar($descricaoAtrib, $uId, $maquina->id, $equipId);
+                        }
+                    }
+                }
+
+                // Se tudo deu certo, confirmamos a transação
+                return redirect()->route('maquinas.index')->with('success', 'Máquina atualizada com sucesso!');
+            } catch (\Exception $e) {
+                // Em caso de erro, a transação será revertida (rollback)
+                throw $e;
             }
-
-            // Atualiza os dados da máquina
-            $maquina->update([
-                'patrimonio' => $validated['patrimonio'],
-                'fabricante' => $validated['fabricante'] ?? null,
-                'especificacoes' => $validated['especificacoes'] ?? null,
-                'tipo' => $validated['tipo'],
-                'status' => $validated['status'],
-            ]);
-
-            // Atualiza os relacionamentos (limpa os vínculos antigos)
-            $maquina->usuarios()->detach();
-
-            if ($validated['status'] === 'Colaborador Integral') {
-                $maquina->usuarios()->attach($validated['usuario_integral']);
-            } elseif ($validated['status'] === 'Colaborador Meio Período') {
-                // $validated['usuarios'] já é um array simples com os IDs
-                $maquina->usuarios()->attach($validated['usuarios']);
-            }
-            // Para status "Almoxarifado", não há vínculo com usuário
-
-            return redirect()->route('maquinas.index')->with('success', 'Máquina atualizada com sucesso!');
-        } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['error' => 'Erro ao atualizar a máquina.'])->withInput();
-        }
+        });
     }
+
 
 
 

@@ -5,6 +5,17 @@
 @section('content')
     <h1>Cadastrar Máquina</h1>
 
+    <!-- Exibição de erros globais -->
+    @if ($errors->any())
+        <div style="color: red;">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <form action="{{ route('maquinas.store') }}" method="POST">
         @csrf
 
@@ -21,12 +32,18 @@
         <div>
             <label for="fabricante">Fabricante:</label>
             <input type="text" id="fabricante" name="fabricante" value="{{ old('fabricante') }}">
+            @error('fabricante')
+                <div style="color: red;">{{ $message }}</div>
+            @enderror
         </div>
 
         <!-- Especificações -->
         <div>
             <label for="especificacoes">Especificações:</label>
             <input type="text" name="especificacoes" id="especificacoes" value="{{ old('especificacoes') }}">
+            @error('especificacoes')
+                <div style="color: red;">{{ $message }}</div>
+            @enderror
         </div>
 
         <!-- Tipo -->
@@ -34,18 +51,24 @@
             <label for="tipo">Tipo:</label>
             <select id="tipo" name="tipo">
                 <option value="notebook" {{ old('tipo') == 'notebook' ? 'selected' : '' }}>Notebook</option>
-                <option value="desktop" {{ old('tipo') == 'desktop' ? 'selected' : '' }}>Desktop</option>
+                <option value="desktop"  {{ old('tipo') == 'desktop'  ? 'selected' : '' }}>Desktop</option>
             </select>
+            @error('tipo')
+                <div style="color: red;">{{ $message }}</div>
+            @enderror
         </div>
 
         <!-- Status da Máquina -->
         <div>
             <label for="status">Status:</label>
             <select id="status" name="status" onchange="toggleUsuariosField()">
-                <option value="Almoxarifado" {{ old('status') == 'Almoxarifado' ? 'selected' : '' }}>Almoxarifado</option>
-                <option value="Colaborador Integral" {{ old('status') == 'Colaborador Integral' ? 'selected' : '' }}>Colaborador Integral</option>
+                <option value="Almoxarifado"          {{ old('status') == 'Almoxarifado'           ? 'selected' : '' }}>Almoxarifado</option>
+                <option value="Colaborador Integral"   {{ old('status') == 'Colaborador Integral'   ? 'selected' : '' }}>Colaborador Integral</option>
                 <option value="Colaborador Meio Período" {{ old('status') == 'Colaborador Meio Período' ? 'selected' : '' }}>Colaborador Meio Período</option>
             </select>
+            @error('status')
+                <div style="color: red;">{{ $message }}</div>
+            @enderror
         </div>
 
         <!-- Seleção de Usuário para Colaborador Integral -->
@@ -59,6 +82,9 @@
                     </option>
                 @endforeach
             </select>
+            @error('usuario_integral')
+                <div style="color: red;">{{ $message }}</div>
+            @enderror
         </div>
 
         <!-- Seleção de Usuários para Colaborador Meio Período -->
@@ -82,26 +108,33 @@
                     </option>
                 @endforeach
             </select>
+            @error('usuarios')
+                <div style="color: red;">{{ $message }}</div>
+            @enderror
         </div>
 
+        <!-- Equipamentos Vinculados -->
         <div id="equipamentoField" style="display: none;">
             <label for="equipamentos_id">Equipamentos Vinculados:</label>
             <select id="equipamentos_id" name="equipamentos_ids[]" class="block mt-1 w-full" multiple="multiple">
                 @foreach ($equipamentos as $equipamento)
                     <option value="{{ $equipamento->id }}"
-                        {{ (collect(old('equipamentos_ids'))->contains($equipamento->id)) ? 'selected' : '' }}>
+                        {{ collect(old('equipamentos_ids'))->contains($equipamento->id) ? 'selected' : '' }}>
                         {{ $equipamento->patrimonio }} - {{ $equipamento->produto->nome }}
                     </option>
                 @endforeach
             </select>
+            @error('equipamentos_ids')
+                <div style="color: red;">{{ $message }}</div>
+            @enderror
         </div>
-
 
         <div>
             <button type="submit">Salvar Máquina</button>
         </div>
     </form>
 
+    <!-- Scripts -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             toggleUsuariosField(); // Ajusta os campos conforme o status selecionado ao carregar a página

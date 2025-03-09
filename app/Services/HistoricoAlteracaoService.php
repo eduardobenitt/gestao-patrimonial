@@ -7,7 +7,7 @@ use App\Models\HistoricoAlteracao;
 class HistoricoAlteracaoService
 {
 
-    public function registrar(string $descricao, int $userId, ?int $maquinaId = null, ?int $equipamentoId = null)
+    public function registrar(string $descricao, ?int $userId = null, ?int $maquinaId = null, ?int $equipamentoId = null)
     {
         return HistoricoAlteracao::create([
             'descricao' => $descricao,
