@@ -25,21 +25,20 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');    
-    
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
     Route::middleware('can:create,App\Models\User')->group(function () {
-        
+
         Route::patch('users/{user}/promote', [UserController::class, 'promoteToTecnico'])->name('users.promote');
     });
 
-    
+
     Route::resource('users', UserController::class)->except(['create', 'store']);
-    Route::post('users/inactivate',[UserController::class, 'inactivate'])->name('users.inactivate');
+    Route::post('users/inactivate', [UserController::class, 'inactivate'])->name('users.inactivate');
 
     Route::resource('produtos', ProdutoController::class);
     Route::resource('maquinas', MaquinaController::class);
     Route::resource('equipamentos', EquipamentoController::class);
-
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
