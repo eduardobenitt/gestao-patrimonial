@@ -1,0 +1,31 @@
+.table {
+    --bs-table-hover-bg: rgba(0, 123, 255, 0.05);
+}
+
+.table-header-primary th {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.expandable-row {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.expandable-row:hover {
+    background-color: rgba(13, 110, 253, 0.1);
+}
+
+.asset-details {
+    border-left: 3px solid #0d6efd;
+    padding-left: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.btn-edit {
+    transition: transform 0.2s;
+}
+
+.btn-edit:hover {
+    transform: translateY(-2px);
+}

@@ -36,11 +36,11 @@ class UserPolicy
      */
     public function update(User $authUser, User $user): bool
     {
-        if($authUser->isAdmin()){
+        if ($authUser->isAdmin()) {
             return true;
         }
 
-        if($authUser->isTecnico() && $user->role !== 'admin'){
+        if ($authUser->isTecnico() && $user->role !== 'admin') {
             return true;
         }
 
@@ -56,10 +56,10 @@ class UserPolicy
     }
 
 
-    public function promover(User $authUser, User $user){
+    public function promover(User $authUser, User $user)
+    {
 
         return $authUser->isAdmin();
-
     }
 
     /**
