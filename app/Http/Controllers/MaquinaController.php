@@ -30,7 +30,7 @@ class MaquinaController extends Controller
 
         $maquinas = Maquina::with(['usuarios', 'equipamentos.produto'])
             ->orderBy('patrimonio')
-            ->get();
+            ->paginate(15);
         return view('maquinas.index', compact('maquinas'));
     }
 

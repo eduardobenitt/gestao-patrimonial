@@ -47,7 +47,7 @@
                         <td>{{ $user->turno }}</td>
                         @if (auth()->user()->role !== 'usuario')
                             <td>
-                                <a class="btn btn-info btn-sm text-white shadow-sm btn-edit"
+                                <a class="btn btn-secondary btn-sm text-black shadow-sm btn-edit"
                                     href="{{ route('users.edit', $user->id) }}">
                                     <i class="bi bi-pencil-fill"></i>
                                 </a>

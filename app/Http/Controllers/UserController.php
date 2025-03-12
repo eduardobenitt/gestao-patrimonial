@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Maquina;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use PhpParser\Node\Expr\Cast\String_;
 use Symfony\Component\Translation\CatalogueMetadataAwareInterface;
 
 class UserController extends Controller
@@ -69,9 +71,20 @@ class UserController extends Controller
     }
 
 
-    public function show(string $id)
+    public function show(User $user)
     {
-        //
+        $user = auth('web')->user();
+
+        // Obtém as máquinas atribuídas ao usuário
+        $maquinas = $user->maquina;
+
+        // Obtém todos os equipamentos vinculados às máquinas do usuário
+        $equipamentos = collect();
+        foreach ($maquinas as $maquina) {
+            $equipamentos = $equipamentos->merge($maquina->equipamentos);
+        }
+
+        return view('users.show', compact('user', 'maquinas', 'equipamentos'));
     }
 
     public function edit(User $user)

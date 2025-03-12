@@ -29,3 +29,222 @@
 .btn-edit:hover {
     transform: translateY(-2px);
 }
+
+/* Sidebar estilo */
+.sidebar {
+    width: 4.5rem;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #212529; /* Mesma cor da navbar */
+    transition: width 0.3s ease;
+    z-index: 1000;
+    padding-top: 56px; /* Espaço para a navbar */
+}
+
+.sidebar.expanded {
+    width: 240px;
+}
+
+.sidebar-nav {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-nav li {
+    margin-bottom: 5px;
+}
+
+.sidebar-nav .nav-link {
+    padding: 15px;
+    color: rgba(255, 255, 255, 0.8);
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+}
+
+.sidebar-nav .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.sidebar-nav .nav-link.active {
+    background-color: #0d6efd;
+    color: #fff;
+}
+
+.sidebar-nav .nav-link i {
+    font-size: 1.2rem;
+    margin-right: 15px;
+    min-width: 24px;
+    text-align: center;
+}
+
+.sidebar-nav .nav-link span {
+    white-space: nowrap;
+    overflow: hidden;
+    opacity: 0;
+    display: none;
+    transition: opacity 0.3s;
+}
+
+.sidebar.expanded .nav-link span {
+    opacity: 1;
+    display: block;
+}
+
+.sidebar-toggle {
+    background-color: transparent;
+    border: none;
+    color: white;
+    padding: 15px;
+    width: 100%;
+    text-align: center;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Ajustes para o conteúdo principal */
+.main-content {
+    margin-left: 4.5rem;
+    transition: margin-left 0.3s ease;
+    padding-top: 56px; /* Altura da navbar */
+}
+
+.main-content.sidebar-expanded {
+    margin-left: 240px;
+}
+
+/* Ajustes para telas pequenas */
+@media (max-width: 992px) {
+    .sidebar {
+        width: 0;
+    }
+
+    .sidebar.expanded {
+        width: 240px;
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+
+    .main-content.sidebar-expanded {
+        margin-left: 0;
+    }
+}
+
+/* Estilos para o título da aplicação */
+.app-title {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 700;
+    font-size: 1.8rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: linear-gradient(45deg, #4776e6, #8e54e9);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 1px 1px 3px rgba(174, 173, 173, 0.2);
+    padding: 5px 15px;
+    transition: transform 0.3s;
+    margin: 0 auto;
+}
+
+.app-title:hover {
+    transform: scale(1.05);
+}
+
+/* Fallback para navegadores que não suportam gradiente no texto */
+@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+    .app-title {
+        background: none;
+        -webkit-text-fill-color: #4776e6;
+        color: #4776e6;
+    }
+}
+
+/* Estilos para a barra de pesquisa */
+.search-container {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    margin-bottom: 0.5rem;
+}
+
+.search-form {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.search-input {
+    border-radius: 25px 0 0 25px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    padding-left: 1rem;
+    transition: box-shadow 0.3s;
+}
+
+.search-input:focus {
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+    border-color: #86b7fe;
+}
+
+.search-button {
+    background-color: #0d6efd;
+    color: white;
+    border-radius: 0 25px 25px 0;
+    padding: 0.375rem 1rem;
+    transition: background-color 0.3s;
+}
+
+.search-button:hover {
+    background-color: #0b5ed7;
+    color: white;
+}
+
+/* Estilos para o botão de notificação */
+.notification-btn {
+    position: relative;
+}
+
+.notification-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: #dc3545;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Ajustes na main-content para acomodar a nova search-bar */
+.main-content .container {
+    padding-top: 0.5rem;
+}
+
+/* Layout da navbar - ajuste para centralizar título */
+.navbar .container-fluid {
+    justify-content: space-between !important;
+}
+
+/* Forçar o estilo do título mesmo para navegadores antigos */
+@supports not (background-clip: text) {
+    .app-title {
+        background: none;
+        -webkit-text-fill-color: initial;
+        color: #4776e6;
+    }
+}
