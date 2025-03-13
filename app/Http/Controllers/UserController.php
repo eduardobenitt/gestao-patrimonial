@@ -73,19 +73,34 @@ class UserController extends Controller
 
     public function show(User $user)
     {
-        $user = auth('web')->user();
+        // Obtém o ID do usuário autenticado
+        $authUserId = auth('web')->id();
 
-        // Obtém as máquinas atribuídas ao usuário
+        // Se o usuário está tentando ver dados de outro usuário, redireciona para seus próprios dados
+        if ($authUserId !== $user->id) {
+            return redirect()->route('users.show', $authUserId)
+                ->with('info', 'Você só pode visualizar suas próprias informações nesta página.');
+        }
+
+        // Carrega as máquinas e equipamentos em uma única consulta
+        $user->load('maquina.equipamentos.produto');
+
+        // Obtém as máquinas pré-carregadas
         $maquinas = $user->maquina;
 
-        // Obtém todos os equipamentos vinculados às máquinas do usuário
+        // Cria uma coleção vazia para armazenar todos os equipamentos
         $equipamentos = collect();
+
+        // Itera sobre cada máquina para obter seus equipamentos
         foreach ($maquinas as $maquina) {
-            $equipamentos = $equipamentos->merge($maquina->equipamentos);
+            if ($maquina->equipamentos && $maquina->equipamentos->count() > 0) {
+                $equipamentos = $equipamentos->merge($maquina->equipamentos);
+            }
         }
 
         return view('users.show', compact('user', 'maquinas', 'equipamentos'));
     }
+
 
     public function edit(User $user)
     {

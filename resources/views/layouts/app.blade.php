@@ -207,7 +207,7 @@
 
         {{-- Container principal --}}
         <main class="container mt-2">
-            <div class="bg-body-tertiary p-3 rounded">
+            <div class="bg-body-tertiary p-2 rounded">
                 @yield('content')
             </div>
         </main>

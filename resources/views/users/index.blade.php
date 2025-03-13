@@ -68,7 +68,7 @@
                         <table class="table table-sm">
                             <thead>
                                 <tr>
-                                    <th scope="col">Patrimônio</th>
+                                    <th scope="col">Patrimônio - Máquina</th>
                                     <th scope="col">Fabricante</th>
                                     <th scope="col">Tipo</th>
                                     <th scope="col">Equipamentos Vinculados</th>
