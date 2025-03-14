@@ -34,7 +34,7 @@ Route::middleware(['auth'])->group(function () {
 
 
     Route::resource('users', UserController::class)->except(['create', 'store']);
-    Route::get('meus-dados', [UserController::class, 'meusDados'])->name('users.meus-dados');
+    Route::get('/patrimonios', [App\Http\Controllers\PatrimonioController::class, 'index'])->name('patrimonios.index');
     Route::post('users/inactivate', [UserController::class, 'inactivate'])->name('users.inactivate');
 
     Route::resource('produtos', ProdutoController::class);

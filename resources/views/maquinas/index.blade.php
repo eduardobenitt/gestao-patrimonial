@@ -78,7 +78,8 @@
 
                     <!-- Botão de Excluir (com confirmação) -->
                     <td>
-                        <form action="{{ route('maquinas.destroy', $maquina->id) }}" method="POST" onsubmit="return confirm('Confirme a remoção do registro?')">
+                        <form action="{{ route('maquinas.destroy', $maquina->id) }}" method="POST"
+                            onsubmit="return confirm('Confirme a remoção do registro?')">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-danger btn-sm">🗑 Excluir</button>

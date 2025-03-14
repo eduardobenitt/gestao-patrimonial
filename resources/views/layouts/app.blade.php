@@ -74,7 +74,7 @@
                             @if (auth()->user()->role !== 'usuario')
                                 {{-- Unificando Máquinas e Equipamentos em "Patrimônio" --}}
                                 <li class="nav-item">
-                                    <a class="nav-link active" aria-current="page" href="{{ route('maquinas.index') }}">
+                                    <a class="nav-link active" aria-current="page" href="{{ route('patrimonios.index') }}">
                                         <i class="bi bi-pc-display"></i> Patrimônios
                                     </a>
                                 </li>
@@ -85,15 +85,15 @@
                                         <i class="bi bi-box-seam"></i> Produtos
                                     </a>
                                 </li>
-
-                                {{-- Usuários (caso queira manter um link direto para gerenciar todos) --}}
-                                <li class="nav-item">
-                                    <a class="nav-link active" aria-current="page"
-                                        href="{{ route('users.show', auth('web')->user()) }}">
-                                        <i class="bi bi-people-fill"></i> Meus Dados
-                                    </a>
-                                </li>
                             @endif
+
+                            {{-- Usuários (caso queira manter um link direto para gerenciar todos) --}}
+                            <li class="nav-item">
+                                <a class="nav-link active" aria-current="page"
+                                    href="{{ route('users.show', auth('web')->user()) }}">
+                                    <i class="bi bi-people-fill"></i> Meus Dados
+                                </a>
+                            </li>
 
                             {{-- Logout --}}
                             <li class="nav-item">
@@ -123,9 +123,9 @@
 
     {{-- Sidebar (visível apenas em telas maiores) --}}
     <div class="sidebar d-none d-lg-block">
-        {{-- Botão de toggle para expandir/colapsar --}}
+        {{-- Botão de toggle para expandir/colapsar com ícone de seta --}}
         <button class="sidebar-toggle" id="sidebarToggle">
-            <i class="bi bi-bootstrap fs-4"></i>
+            <i class="bi bi-arrow-right-circle" id="toggleIcon"></i>
         </button>
 
         {{-- Links da sidebar --}}
@@ -133,7 +133,7 @@
             @auth
                 <li>
                     <a href="{{ route('users.index') }}"
-                        class="nav-link {{ request()->routeIs('users.index') ? 'active' : '' }}">
+                        class="nav-link sidebar-link {{ request()->routeIs('users.index') ? 'active' : '' }}">
                         <i class="bi bi-house-door-fill"></i>
                         <span>Home</span>
                     </a>
@@ -141,8 +141,8 @@
 
                 @if (auth()->user()->role !== 'usuario')
                     <li>
-                        <a href="{{ route('maquinas.index') }}"
-                            class="nav-link {{ request()->routeIs('maquinas.index') ? 'active' : '' }}">
+                        <a href="{{ route('patrimonios.index') }}"
+                            class="nav-link sidebar-link {{ request()->routeIs('patrimonios.index') ? 'active' : '' }}">
                             <i class="bi bi-pc-display"></i>
                             <span>Patrimônios</span>
                         </a>
@@ -150,23 +150,23 @@
 
                     <li>
                         <a href="{{ route('produtos.index') }}"
-                            class="nav-link {{ request()->routeIs('produtos.index') ? 'active' : '' }}">
+                            class="nav-link sidebar-link {{ request()->routeIs('produtos.index') ? 'active' : '' }}">
                             <i class="bi bi-box-seam"></i>
                             <span>Produtos</span>
-                        </a>
-                    </li>
-
-                    <li>
-                        <a href="{{ route('users.show', auth('web')->user()) }}"
-                            class="nav-link {{ request()->routeIs('users.show') ? 'active' : '' }}">
-                            <i class="bi bi-people-fill"></i>
-                            <span>Meus Dados</span>
                         </a>
                     </li>
                 @endif
 
                 <li>
-                    <a href="#" class="nav-link"
+                    <a href="{{ route('users.show', auth('web')->user()) }}"
+                        class="nav-link sidebar-link {{ request()->routeIs('users.show') ? 'active' : '' }}">
+                        <i class="bi bi-people-fill"></i>
+                        <span>Meus Dados</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#" class="nav-link sidebar-link"
                         onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                         <i class="bi bi-box-arrow-right"></i>
                         <span>Sair</span>
@@ -179,7 +179,7 @@
 
             @guest
                 <li>
-                    <a href="/login" class="nav-link">
+                    <a href="/login" class="nav-link sidebar-link">
                         <i class="bi bi-box-arrow-in-right"></i>
                         <span>Entrar</span>
                     </a>
@@ -190,7 +190,7 @@
 
     {{-- Conteúdo principal --}}
     <div class="main-content">
-        {{-- Barra de pesquisa --}}
+        {{-- Barra de pesquisa }
         <div class="search-container">
             <div class="container-fluid">
                 <form class="search-form" role="search">
@@ -204,7 +204,7 @@
                 </form>
             </div>
         </div>
-
+        --}
         {{-- Container principal --}}
         <main class="container mt-2">
             <div class="bg-body-tertiary p-2 rounded">
@@ -224,24 +224,42 @@
             const sidebarToggle = document.getElementById('sidebarToggle');
             const sidebar = document.querySelector('.sidebar');
             const mainContent = document.querySelector('.main-content');
+            const toggleIcon = document.getElementById('toggleIcon');
+            const sidebarLinks = document.querySelectorAll('.sidebar-link');
 
-            // Verificar se há um estado salvo no localStorage
-            const sidebarState = localStorage.getItem('sidebarExpanded');
-            if (sidebarState === 'true') {
-                sidebar.classList.add('expanded');
-                mainContent.classList.add('sidebar-expanded');
-                // Adicionar classe ao botão na navbar
-                sidebarToggle.classList.add('active');
+            // Sempre iniciar com a sidebar fechada
+            sidebar.classList.remove('expanded');
+            mainContent.classList.remove('sidebar-expanded');
+            updateToggleIcon();
+
+            // Função para atualizar o ícone do botão toggle
+            function updateToggleIcon() {
+                if (sidebar.classList.contains('expanded')) {
+                    // Sidebar está expandida, mostra ícone de seta para esquerda
+                    toggleIcon.classList.remove('bi-arrow-right-circle');
+                    toggleIcon.classList.add('bi-arrow-left-circle');
+                } else {
+                    // Sidebar está recolhida, mostra ícone de seta para direita
+                    toggleIcon.classList.remove('bi-arrow-left-circle');
+                    toggleIcon.classList.add('bi-arrow-right-circle');
+                }
             }
 
+            // Evento de clique no botão toggle
             sidebarToggle.addEventListener('click', function() {
                 sidebar.classList.toggle('expanded');
                 mainContent.classList.toggle('sidebar-expanded');
-                // Toggle da classe no botão
-                sidebarToggle.classList.toggle('active');
+                updateToggleIcon();
+            });
 
-                // Salvar o estado atual no localStorage
-                localStorage.setItem('sidebarExpanded', sidebar.classList.contains('expanded'));
+            // Fechar a sidebar quando um link é clicado
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    // Apenas fecha se estiver em modo mobile ou se queremos sempre fechar
+                    sidebar.classList.remove('expanded');
+                    mainContent.classList.remove('sidebar-expanded');
+                    updateToggleIcon();
+                });
             });
         });
     </script>
