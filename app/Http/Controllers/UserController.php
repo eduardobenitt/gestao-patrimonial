@@ -45,10 +45,11 @@ class UserController extends Controller
                 'funcao' => 'nullable|string|max:255',
                 'equipe' => 'nullable|string|max:255',
                 'ramal' => 'nullable|string|max:20',
-                'turno' => 'nullable|in:Integral,Manhã,Tarde',
+                'turno' => 'required|in:Integral,Manhã,Tarde',
                 'unidade' => 'nullable|string|max:255',
                 'role' => 'required|in:usuario,tecnico,admin',
                 'status' => 'nullable|in:Ativo,Inativo',
+                'regime' => 'required|in:In Office,Home Office,Hibrido,Prestador'
             ]);
 
             $user = User::create([
@@ -62,6 +63,7 @@ class UserController extends Controller
                 'unidade' => $validated['unidade'] ?? null,
                 'role' => $validated['role'],
                 'status' => $validated['status'] ?? 'Ativo',
+                'regime' => $validated['regime'] ?? 'In Office',
             ]);
 
             return redirect()->route('login')->with('success', 'Usuário cadastrado com sucesso!');
@@ -127,6 +129,7 @@ class UserController extends Controller
                 'unidade' => 'nullable|string|max:255',
                 'role' => 'required|in:usuario,tecnico,admin',
                 'status' => 'required|in:Ativo,Inativo',
+                'regime' => 'required|in:In Office,Home Office,Hibrido,Prestador'
             ]);
 
             $user->update($validated);

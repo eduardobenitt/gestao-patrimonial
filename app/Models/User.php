@@ -24,6 +24,7 @@ class User extends Authenticatable
         'status',
         'password',
         'role',  // Permissão do usuário: admin, tecnico, usuario
+        'regime',
     ];
 
     /**

@@ -28,6 +28,7 @@
                             <th>E-mail</th>
                             <th>Ramal</th>
                             <th>Equipe</th>
+                            <th>Regime</th>
                             <th>Função</th>
                             <th>Unidade</th>
                             <th>Turno</th>
@@ -42,7 +43,10 @@
                                 <td data-bs-toggle="collapse" data-bs-target="#collapseUser{{ $user->id }}"
                                     aria-expanded="false" style="cursor: pointer;">
                                     <div class="d-flex align-items-center">
-                                        <i class="bi bi-chevron-right me-2 expand-icon"></i>
+                                        @if (auth()->user()->role !== 'usuario')
+                                            <i class="bi bi-chevron-right me-2 expand-icon"></i>
+                                        @endif
+
                                         <strong>{{ $user->name }}</strong>
                                     </div>
                                     @if ($errors->has('name'))
@@ -57,6 +61,7 @@
                                 </td>
                                 <td>{{ $user->ramal }}</td>
                                 <td>{{ $user->equipe }}</td>
+                                <td>{{ $user->regime }}</td>
                                 <td>{{ $user->funcao }}</td>
                                 <td>{{ $user->unidade }}</td>
                                 <td>
@@ -71,88 +76,92 @@
                                             </a>
                                             <button type="button" class="btn btn-sm btn-outline-danger"
                                                 data-bs-toggle="modal" data-bs-target="#confirmModal"
-                                                data-action="{{ route('users.destroy', $user->id) }}"
-                                                data-message="Tem certeza que deseja excluir o usuário {{ $user->name }}?">
+                                                data-action="{{ route('users.inactivate', $user->id) }}"
+                                                data-message="Tem certeza que deseja inativar o usuário {{ $user->name }}?">
                                                 <i class="bi bi-trash-fill"></i>
                                             </button>
                                         </div>
                                     </td>
                                 @endif
                             </tr>
-                            <tr class="collapse" id="collapseUser{{ $user->id }}">
-                                <td colspan="{{ auth()->user()->role !== 'usuario' ? '8' : '7' }}" class="p-0">
-                                    <div class="p-3 bg-light">
-                                        <h6 class="mb-3">Máquinas Vinculadas</h6>
-                                        @if ($user->maquina->isNotEmpty())
-                                            <div class="table-responsive">
-                                                <table class="table table-sm table-bordered mb-0">
-                                                    <thead class="table-secondary">
-                                                        <tr>
-                                                            <th>Patrimônio</th>
-                                                            <th>Fabricante</th>
-                                                            <th>Tipo</th>
-                                                            <th>Equipamentos Vinculados</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        @foreach ($user->maquina as $maquina)
+                            @if (auth()->user()->role !== 'usuario')
+                                <tr class="collapse" id="collapseUser{{ $user->id }}">
+                                    <td colspan="{{ auth()->user()->role !== 'usuario' ? '9' : '8' }}" class="p-0">
+                                        <div class="p-3 bg-light">
+                                            <h6 class="mb-3">Máquinas Vinculadas</h6>
+                                            @if ($user->maquina->isNotEmpty())
+                                                <div class="table-responsive">
+                                                    <table class="table table-sm table-bordered mb-0">
+                                                        <thead class="table-secondary">
                                                             <tr>
-                                                                <td>{{ $maquina->patrimonio }}</td>
-                                                                <td>{{ $maquina->fabricante ?? 'N/A' }}</td>
-                                                                <td>
-                                                                    <span
-                                                                        class="badge {{ $maquina->tipo === 'notebook' ? 'bg-info' : 'bg-dark' }}">
-                                                                        {{ ucfirst($maquina->tipo) }}
-                                                                    </span>
-                                                                </td>
-                                                                <td>
-                                                                    @if ($maquina->equipamentos->isNotEmpty())
-                                                                        <ul class="list-unstyled mb-0">
-                                                                            @foreach ($maquina->equipamentos as $equipamento)
-                                                                                <li>
-                                                                                    <i class="bi bi-dot"></i>
-                                                                                    <span
-                                                                                        class="badge bg-secondary">{{ $equipamento->produto->nome ?? 'Produto não definido' }}</span>
-                                                                                    <small>{{ $equipamento->patrimonio }}</small>
-                                                                                </li>
-                                                                            @endforeach
-                                                                        </ul>
-                                                                    @else
-                                                                        <span class="text-muted">Nenhum equipamento
-                                                                            vinculado</span>
-                                                                    @endif
-                                                                </td>
+                                                                <th>Patrimônio</th>
+                                                                <th>Fabricante</th>
+                                                                <th>Tipo</th>
+                                                                <th>Equipamentos Vinculados</th>
                                                             </tr>
-                                                        @endforeach
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        @else
-                                            <p class="text-muted mb-0">Nenhuma máquina vinculada a este usuário.</p>
-                                        @endif
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach ($user->maquina as $maquina)
+                                                                <tr>
+                                                                    <td>{{ $maquina->patrimonio }}</td>
+                                                                    <td>{{ $maquina->fabricante ?? 'N/A' }}</td>
+                                                                    <td>
+                                                                        <span
+                                                                            class="badge {{ $maquina->tipo === 'notebook' ? 'bg-info' : 'bg-dark' }}">
+                                                                            {{ ucfirst($maquina->tipo) }}
+                                                                        </span>
+                                                                    </td>
+                                                                    <td>
+                                                                        @if ($maquina->equipamentos->isNotEmpty())
+                                                                            <ul class="list-unstyled mb-0">
+                                                                                @foreach ($maquina->equipamentos as $equipamento)
+                                                                                    <li>
+                                                                                        <i class="bi bi-dot"></i>
+                                                                                        <span
+                                                                                            class="badge bg-secondary">{{ $equipamento->produto->nome ?? 'Produto não definido' }}</span>
+                                                                                        <small>{{ $equipamento->patrimonio }}</small>
+                                                                                    </li>
+                                                                                @endforeach
+                                                                            </ul>
+                                                                        @else
+                                                                            <span class="text-muted">Nenhum equipamento
+                                                                                vinculado</span>
+                                                                        @endif
+                                                                    </td>
+                                                                </tr>
+                                                            @endforeach
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            @else
+                                                <p class="text-muted mb-0">Nenhuma máquina vinculada a este usuário.</p>
+                                            @endif
 
-                                        <div class="mt-3">
-                                            <h6>Informações Adicionais</h6>
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <p class="mb-1"><strong>Status:</strong>
-                                                        <span
-                                                            class="badge {{ $user->status == 'Ativo' ? 'bg-success' : 'bg-secondary' }}">
-                                                            {{ $user->status ?? 'Ativo' }}
-                                                        </span>
-                                                    </p>
-                                                    <p class="mb-1"><strong>Tipo de Usuário:</strong>
-                                                        <span
-                                                            class="badge {{ $user->role == 'admin' ? 'bg-danger' : ($user->role == 'tecnico' ? 'bg-warning text-dark' : 'bg-info') }}">
-                                                            {{ ucfirst($user->role) }}
-                                                        </span>
-                                                    </p>
+                                            <div class="mt-3">
+                                                <h6>Informações Adicionais</h6>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <p class="mb-1"><strong>Status:</strong>
+                                                            <span
+                                                                class="badge {{ $user->status == 'Ativo' ? 'bg-success' : 'bg-secondary' }}">
+                                                                {{ $user->status ?? 'Ativo' }}
+                                                            </span>
+                                                        </p>
+
+                                                        <p class="mb-1"><strong>Tipo de Usuário:</strong>
+                                                            <span
+                                                                class="badge {{ $user->role == 'admin' ? 'bg-danger' : ($user->role == 'tecnico' ? 'bg-warning text-dark' : 'bg-info') }}">
+                                                                {{ ucfirst($user->role) }}
+                                                            </span>
+                                                        </p>
+
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </td>
-                            </tr>
+                                    </td>
+                                </tr>
+                            @endif
                         @endforeach
                     </tbody>
                 </table>

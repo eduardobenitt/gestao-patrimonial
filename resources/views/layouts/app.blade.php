@@ -26,6 +26,7 @@
 
     {{-- CSS customizado --}}
     <link href="{{ asset('css/custom.css') }}" rel="stylesheet">
+
 </head>
 
 <body>
@@ -190,21 +191,6 @@
 
     {{-- Conteúdo principal --}}
     <div class="main-content">
-        {{-- Barra de pesquisa }
-        <div class="search-container">
-            <div class="container-fluid">
-                <form class="search-form" role="search">
-                    <div class="input-group">
-                        <input class="form-control search-input" type="search" placeholder="Pesquisar..."
-                            aria-label="Search">
-                        <button class="btn search-button" type="submit">
-                            <i class="bi bi-search"></i>
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-        --}
         {{-- Container principal --}}
         <main class="container mt-2">
             <div class="bg-body-tertiary p-2 rounded">
@@ -220,44 +206,44 @@
 
     {{-- Script para controlar a sidebar --}}
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const sidebarToggle = document.getElementById('sidebarToggle');
-            const sidebar = document.querySelector('.sidebar');
-            const mainContent = document.querySelector('.main-content');
-            const toggleIcon = document.getElementById('toggleIcon');
-            const sidebarLinks = document.querySelectorAll('.sidebar-link');
+        document.addEventListener("DOMContentLoaded", function() {
+            const sidebarToggle = document.getElementById("sidebarToggle");
+            const sidebar = document.querySelector(".sidebar");
+            const mainContent = document.querySelector(".main-content");
+            const toggleIcon = document.getElementById("toggleIcon");
+            const sidebarLinks = document.querySelectorAll(".sidebar-link");
 
             // Sempre iniciar com a sidebar fechada
-            sidebar.classList.remove('expanded');
-            mainContent.classList.remove('sidebar-expanded');
+            sidebar.classList.remove("expanded");
+            mainContent.classList.remove("sidebar-expanded");
             updateToggleIcon();
 
             // Função para atualizar o ícone do botão toggle
             function updateToggleIcon() {
-                if (sidebar.classList.contains('expanded')) {
+                if (sidebar.classList.contains("expanded")) {
                     // Sidebar está expandida, mostra ícone de seta para esquerda
-                    toggleIcon.classList.remove('bi-arrow-right-circle');
-                    toggleIcon.classList.add('bi-arrow-left-circle');
+                    toggleIcon.classList.remove("bi-arrow-right-circle");
+                    toggleIcon.classList.add("bi-arrow-left-circle");
                 } else {
                     // Sidebar está recolhida, mostra ícone de seta para direita
-                    toggleIcon.classList.remove('bi-arrow-left-circle');
-                    toggleIcon.classList.add('bi-arrow-right-circle');
+                    toggleIcon.classList.remove("bi-arrow-left-circle");
+                    toggleIcon.classList.add("bi-arrow-right-circle");
                 }
             }
 
             // Evento de clique no botão toggle
-            sidebarToggle.addEventListener('click', function() {
-                sidebar.classList.toggle('expanded');
-                mainContent.classList.toggle('sidebar-expanded');
+            sidebarToggle.addEventListener("click", function() {
+                sidebar.classList.toggle("expanded");
+                mainContent.classList.toggle("sidebar-expanded");
                 updateToggleIcon();
             });
 
             // Fechar a sidebar quando um link é clicado
-            sidebarLinks.forEach(link => {
-                link.addEventListener('click', function() {
+            sidebarLinks.forEach((link) => {
+                link.addEventListener("click", function() {
                     // Apenas fecha se estiver em modo mobile ou se queremos sempre fechar
-                    sidebar.classList.remove('expanded');
-                    mainContent.classList.remove('sidebar-expanded');
+                    sidebar.classList.remove("expanded");
+                    mainContent.classList.remove("sidebar-expanded");
                     updateToggleIcon();
                 });
             });

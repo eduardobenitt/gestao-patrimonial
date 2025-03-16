@@ -274,14 +274,55 @@ class MaquinaController extends Controller
 
     public function destroy(Request $request, Maquina $maquina)
     {
-
         try {
+            // Verificar se existem equipamentos vinculados
+            $hasEquipamentos = $maquina->equipamentos->count() > 0;
 
-            $maquina->usuarios()->detach();
+            DB::transaction(function () use ($maquina) {
+                // Obter usuário atual
+                $actor = auth('web')->user();
+                $descricaoDes = $actor->name . ' - Exclusão de Máquina - ' . HistoricoAlteracao::DESATRIBUICAO;
 
-            $maquina->delete();
+                // Atualizar equipamentos para Almoxarifado
+                foreach ($maquina->equipamentos as $equipamento) {
+                    $equipamento->update([
+                        'maquina_id' => null,
+                        'status' => 'Almoxarifado',
+                    ]);
 
-            return redirect()->route('maquinas.index')->with('success', 'Maquina excluída com Sucesso!');
+                    // Registrar no histórico
+                    $this->historicoService->registrar(
+                        $descricaoDes,
+                        null,
+                        $maquina->id,
+                        $equipamento->id
+                    );
+                }
+
+                // Desvincular usuários e registrar no histórico
+                foreach ($maquina->usuarios as $usuario) {
+                    $this->historicoService->registrar(
+                        $descricaoDes,
+                        $usuario->id,
+                        $maquina->id,
+                        null
+                    );
+                }
+
+                // Desvincular usuários
+                $maquina->usuarios()->detach();
+
+                // Excluir a máquina
+                $maquina->delete();
+            });
+
+            // Mensagem de sucesso
+            $message = 'Maquina excluída com Sucesso!';
+            if ($hasEquipamentos) {
+                $message .= ' Equipamentos vinculados a máquina foram enviados para o almoxarifado.';
+            }
+
+            return redirect()->route('maquinas.index')->with('success', $message);
         } catch (\Exception $e) {
             return redirect()->back()->withErrors(['error' => 'Erro ao excluir a máquina.'])->withInput();
         }

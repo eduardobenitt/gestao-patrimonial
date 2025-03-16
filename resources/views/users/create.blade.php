@@ -14,35 +14,63 @@
                         <!-- Nome -->
                         <div>
                             <x-input-label for="name" :value="__('Name')" />
-                            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus />
+                            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name"
+                                :value="old('name')" required autofocus />
                             <x-input-error :messages="$errors->get('name')" class="mt-2" />
                         </div>
 
                         <!-- Email -->
                         <div class="mt-4">
                             <x-input-label for="email" :value="__('Email')" />
-                            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required />
+                            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email"
+                                :value="old('email')" required />
                             <x-input-error :messages="$errors->get('email')" class="mt-2" />
                         </div>
 
                         <!-- Função -->
                         <div class="mt-4">
                             <x-input-label for="funcao" :value="__('Função')" />
-                            <x-text-input id="funcao" class="block mt-1 w-full" type="text" name="funcao" :value="old('funcao')" />
+                            <x-text-input id="funcao" class="block mt-1 w-full" type="text" name="funcao"
+                                :value="old('funcao')" />
                             <x-input-error :messages="$errors->get('funcao')" class="mt-2" />
                         </div>
 
                         <!-- Equipe -->
                         <div class="mt-4">
                             <x-input-label for="equipe" :value="__('Equipe')" />
-                            <x-text-input id="equipe" class="block mt-1 w-full" type="text" name="equipe" :value="old('equipe')" />
+                            <x-text-input id="equipe" class="block mt-1 w-full" type="text" name="equipe"
+                                :value="old('equipe')" />
                             <x-input-error :messages="$errors->get('equipe')" class="mt-2" />
+                        </div>
+
+                        <!-- Regime -->
+                        <div class="mt-4">
+                            <x-input-label for="regime" :value="__('Regime')" />
+                            <select id="regime" name="regime" class="block mt-1 w-full">
+                                <option value="In Office" {{ old('regime') === 'In Office' ? 'selected' : '' }}>
+                                    In Office
+                                </option>
+
+                                <option value="Home Office" {{ old('regime') === 'Home Office' ? 'selected' : '' }}>
+                                    Home Office
+                                </option>
+
+                                <option value="Hibrido" {{ old('regime') === 'Hibrido' ? 'selected' : '' }}>
+                                    Híbrido
+                                </option>
+
+                                <option value="Prestador" {{ old('regime') === 'Prestador' ? 'selected' : '' }}>
+                                    Prestador
+                                </option>
+                            </select>
+                            <x-input-error :messages="$errors->get('regime')" class="mt-2" />
                         </div>
 
                         <!-- Ramal -->
                         <div class="mt-4">
                             <x-input-label for="ramal" :value="__('Ramal')" />
-                            <x-text-input id="ramal" class="block mt-1 w-full" type="text" name="ramal" :value="old('ramal')" />
+                            <x-text-input id="ramal" class="block mt-1 w-full" type="text" name="ramal"
+                                :value="old('ramal')" />
                             <x-input-error :messages="$errors->get('ramal')" class="mt-2" />
                         </div>
 
@@ -50,7 +78,8 @@
                         <div class="mt-4">
                             <x-input-label for="turno" :value="__('Turno')" />
                             <select id="turno" name="turno" class="block mt-1 w-full">
-                                <option value="Integral" {{ old('turno') === 'Integral' ? 'selected' : '' }}>Integral</option>
+                                <option value="Integral" {{ old('turno') === 'Integral' ? 'selected' : '' }}>Integral
+                                </option>
                                 <option value="Manhã" {{ old('turno') === 'Manhã' ? 'selected' : '' }}>Manhã</option>
                                 <option value="Tarde" {{ old('turno') === 'Tarde' ? 'selected' : '' }}>Tarde</option>
                             </select>
@@ -60,7 +89,8 @@
                         <!-- Unidade -->
                         <div class="mt-4">
                             <x-input-label for="unidade" :value="__('Unidade')" />
-                            <x-text-input id="unidade" class="block mt-1 w-full" type="text" name="unidade" :value="old('unidade')" />
+                            <x-text-input id="unidade" class="block mt-1 w-full" type="text" name="unidade"
+                                :value="old('unidade')" />
                             <x-input-error :messages="$errors->get('unidade')" class="mt-2" />
                         </div>
 
@@ -78,14 +108,16 @@
                         <!-- Senha -->
                         <div class="mt-4">
                             <x-input-label for="password" :value="__('Password')" />
-                            <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required />
+                            <x-text-input id="password" class="block mt-1 w-full" type="password" name="password"
+                                required />
                             <x-input-error :messages="$errors->get('password')" class="mt-2" />
                         </div>
 
                         <!-- Confirmar Senha -->
                         <div class="mt-4">
                             <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-                            <x-text-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" required />
+                            <x-text-input id="password_confirmation" class="block mt-1 w-full" type="password"
+                                name="password_confirmation" required />
                         </div>
 
                         <!-- Botão de Cadastro -->

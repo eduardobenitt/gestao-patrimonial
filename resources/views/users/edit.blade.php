@@ -51,6 +51,29 @@
                             <x-input-error :messages="$errors->get('equipe')" class="mt-2" />
                         </div>
 
+                        <!-- Regime -->
+                        <div class="mt-4">
+                            <x-input-label for="regime" :value="__('Regime')" />
+                            <select id="regime" name="regime" class="block mt-1 w-full">
+                                <option value="In Office" {{ $user->regime === 'In Office' ? 'selected' : '' }}>
+                                    In Office
+                                </option>
+
+                                <option value="Home Office" {{ $user->regime === 'Home Office' ? 'selected' : '' }}>Home
+                                    Office
+                                </option>
+
+                                <option value="Hibrido" {{ $user->regime === 'Hibrido' ? 'selected' : '' }}>
+                                    Hibrido
+                                </option>
+
+                                <option value="Prestador" {{ $user->regime === 'Prestador' ? 'selected' : '' }}>
+                                    Prestador
+                                </option>
+                            </select>
+                            <x-input-error :messages="$errors->get('regime')" class="mt-2" />
+                        </div>
+
                         <!-- Ramal -->
                         <div class="mt-4">
                             <x-input-label for="ramal" :value="__('Ramal')" />
