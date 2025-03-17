@@ -34,7 +34,7 @@
 
             {{-- Nome/Marca do site (centralizado) --}}
             <a class="navbar-brand app-title" href="#">AssetFlow</a>
-            @if (auth()->check() && auth()->user()->role !== 'usuario')
+            @if (auth()->user()->role !== 'usuario')
                 {{-- Área direita da navbar --}}
                 <div>
                     {{-- Ícone de notificação --}}
