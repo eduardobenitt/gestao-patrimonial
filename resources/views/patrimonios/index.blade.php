@@ -1,4 +1,4 @@
-@extends('layouts.teste')
+@extends('layouts.app')
 
 @section('title', 'Patrimônios - Máquinas e Equipamentos')
 
