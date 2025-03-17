@@ -1,3 +1,12 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "bootstrap/dist/css/bootstrap";
+
+/* Importar Bootstrap CSS */
+@import "bootstrap/dist/css/bootstrap.min.css";
+
+/* Importar Bootstrap Icons */
+@import "bootstrap-icons/font/bootstrap-icons.css";
+
+/* Importar Select2 CSS */
+@import "select2/dist/css/select2.min.css";
+
+@import "/resources/css/custom.css";

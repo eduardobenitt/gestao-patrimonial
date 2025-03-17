@@ -54,14 +54,24 @@ class MaquinaController extends Controller
                 'status' => 'required|in:Almoxarifado,Colaborador Integral,Colaborador Meio Período',
             ];
 
+            // Regras específicas por tipo de status
             if ($request->status === 'Colaborador Integral') {
                 $rules['usuario_integral'] = 'required|exists:users,id';
             } elseif ($request->status === 'Colaborador Meio Período') {
-                $rules['usuarios'] = 'required|array|size:2';
-                $rules['usuarios.*'] = 'required|exists:users,id';
+                $rules['usuario_manha'] = 'nullable|exists:users,id';
+                $rules['usuario_tarde'] = 'nullable|exists:users,id';
             }
 
             $validated = $request->validate($rules);
+
+            // Validação adicional para meio período - pelo menos um usuário informado
+            if ($validated['status'] === 'Colaborador Meio Período') {
+                if (empty($request->usuario_manha) && empty($request->usuario_tarde)) {
+                    return redirect()->back()
+                        ->withErrors(['usuarios' => 'Pelo menos um usuário (manhã ou tarde) deve ser informado.'])
+                        ->withInput();
+                }
+            }
 
             $maquina = Maquina::create([
                 'patrimonio' => $validated['patrimonio'],
@@ -71,17 +81,32 @@ class MaquinaController extends Controller
                 'status' => $validated['status'],
             ]);
 
-            if ($validated['status'] === 'Colaborador Integral') {
-                $maquina->usuarios()->attach($validated['usuario_integral']);
-            } elseif ($validated['status'] === 'Colaborador Meio Período') {
-                foreach ($validated['usuarios'] as $usuariosIds) {
-                    $maquina->usuarios()->attach($usuariosIds);
-                }
-            }
-
+            // Vinculação de usuários com base no status
             $actor = auth('web')->user();
             $descricao = $actor->name . ' - ' . HistoricoAlteracao::ATRIBUICAO;
 
+
+            if ($validated['status'] === 'Colaborador Integral') {
+                // Vincula um único usuário para colaborador integral
+                $maquina->usuarios()->attach($validated['usuario_integral'], ['turno' => null]);
+                $userId = $validated['usuario_integral'];
+            } elseif ($validated['status'] === 'Colaborador Meio Período') {
+                // Vincula usuários para os turnos da manhã e tarde, se informados
+                $userIds = [];
+
+                if (!empty($request->usuario_manha)) {
+                    $maquina->usuarios()->attach($request->usuario_manha, ['turno' => 'manha']);
+                    $userIds[] = $request->usuario_manha;
+                }
+
+                if (!empty($request->usuario_tarde)) {
+                    $maquina->usuarios()->attach($request->usuario_tarde, ['turno' => 'tarde']);
+                    $userIds[] = $request->usuario_tarde;
+                }
+            }
+
+
+            // Vinculação de equipamentos
             if ($request->has('equipamentos_ids') && is_array($request->equipamentos_ids)) {
                 foreach ($request->equipamentos_ids as $equipamentoID) {
                     $equipamento = Equipamento::find($equipamentoID);
@@ -90,6 +115,8 @@ class MaquinaController extends Controller
                             'maquina_id' => $maquina->id,
                             'status' => 'Em Uso',
                         ]);
+
+                        // Registro no histórico
                         if ($validated['status'] === 'Colaborador Integral') {
                             $this->historicoService->registrar(
                                 $descricao,
@@ -98,10 +125,11 @@ class MaquinaController extends Controller
                                 $equipamento->id
                             );
                         } elseif ($validated['status'] === 'Colaborador Meio Período') {
-                            foreach ($validated['usuarios'] as $usuariosIds) {
+                            // Registra para cada usuário vinculado
+                            foreach ($userIds as $userId) {
                                 $this->historicoService->registrar(
                                     $descricao,
-                                    $usuariosIds,
+                                    $userId,
                                     $maquina->id,
                                     $equipamento->id
                                 );
@@ -136,7 +164,7 @@ class MaquinaController extends Controller
         // Iniciamos a transação
         return DB::transaction(function () use ($request, $maquina) {
             try {
-                // 1. Validação
+                // 1. Validação (esta parte está correta)
                 $rules = [
                     'patrimonio'    => 'required|string|max:255|unique:maquinas,patrimonio,' . $maquina->id,
                     'fabricante'    => 'nullable|string|max:25',
@@ -145,11 +173,12 @@ class MaquinaController extends Controller
                     'status'        => 'required|in:Almoxarifado,Colaborador Integral,Colaborador Meio Período',
                 ];
 
+                // Regras específicas por tipo de status
                 if ($request->status === 'Colaborador Integral') {
                     $rules['usuario_integral'] = 'required|exists:users,id';
                 } elseif ($request->status === 'Colaborador Meio Período') {
-                    $rules['usuarios']   = 'required|array|size:2';
-                    $rules['usuarios.*'] = 'required|exists:users,id';
+                    $rules['usuario_manha'] = 'nullable|exists:users,id';
+                    $rules['usuario_tarde'] = 'nullable|exists:users,id';
                 }
 
                 if ($request->has('equipamentos_ids')) {
@@ -159,15 +188,25 @@ class MaquinaController extends Controller
 
                 $validated = $request->validate($rules);
 
+                // Validação adicional para meio período - pelo menos um usuário informado
+                if ($validated['status'] === 'Colaborador Meio Período') {
+                    if (empty($request->usuario_manha) && empty($request->usuario_tarde)) {
+                        return redirect()->back()
+                            ->withErrors(['usuarios' => 'Pelo menos um usuário (manhã ou tarde) deve ser informado.'])
+                            ->withInput();
+                    }
+                }
+
                 // 2. Descobrir equipamentos removidos/adicionados
                 $oldEquipIds = $maquina->equipamentos->pluck('id')->toArray();
-                $newEquipIds = $validated['equipamentos_ids'] ?? [];
+                $newEquipIds = $request->equipamentos_ids ?? [];
 
                 $removedEquipIds = array_diff($oldEquipIds, $newEquipIds);
                 $addedEquipIds   = array_diff($newEquipIds, $oldEquipIds);
 
-                // 3. Se Almoxarifado, forçamos remoção de todos
+                // 3. Gerenciar equipamentos com base no status
                 if ($validated['status'] === 'Almoxarifado') {
+                    // Se Almoxarifado, removemos todos os equipamentos
                     $removedEquipIds = $oldEquipIds;
                     Equipamento::where('maquina_id', $maquina->id)
                         ->update([
@@ -192,7 +231,7 @@ class MaquinaController extends Controller
                     }
                 }
 
-                // 4. Atualiza a máquina
+                // 4. Atualizar a máquina
                 $maquina->update([
                     'patrimonio'     => $validated['patrimonio'],
                     'fabricante'     => $validated['fabricante'] ?? null,
@@ -201,59 +240,86 @@ class MaquinaController extends Controller
                     'status'         => $validated['status'],
                 ]);
 
-                // 5. Diferença de usuários
-                $oldUserIds = $maquina->usuarios->pluck('id')->toArray();
-                $newUserIds = [];
-
-                if ($validated['status'] === 'Colaborador Integral') {
-                    $newUserIds = [$validated['usuario_integral']];
-                } elseif ($validated['status'] === 'Colaborador Meio Período') {
-                    $newUserIds = $validated['usuarios'];
-                }
-
-                $removedUserIds = array_diff($oldUserIds, $newUserIds);
-                $addedUserIds   = array_diff($newUserIds, $oldUserIds);
-
-                // Remove só quem saiu, adiciona só quem entrou
-                if (!empty($removedUserIds)) {
-                    $maquina->usuarios()->detach($removedUserIds);
-                }
-                if (!empty($addedUserIds)) {
-                    $maquina->usuarios()->attach($addedUserIds);
-                }
-
-                // 6. Registro no histórico
-                $actor          = auth('web')->user();
+                // 5. Gerenciar usuários
+                $actor = auth('web')->user();
                 $descricaoAtrib = $actor->name . ' - ' . HistoricoAlteracao::ATRIBUICAO;
-                $descricaoDes   = $actor->name . ' - ' . HistoricoAlteracao::DESATRIBUICAO;
+                $descricaoDes = $actor->name . ' - ' . HistoricoAlteracao::DESATRIBUICAO;
 
-                // 6.1 Usuários
-                foreach ($removedUserIds as $uid) {
-                    $this->historicoService->registrar($descricaoDes, $uid, $maquina->id, null);
-                }
-                foreach ($addedUserIds as $uid) {
-                    $this->historicoService->registrar($descricaoAtrib, $uid, $maquina->id, null);
-                }
+                $atuaisUsuarios = $maquina->usuarios()
+                    ->withPivot('turno')
+                    ->get()
+                    ->keyBy('id')
+                    ->toArray();
 
-                // 6.2 Equipamentos
-                $equipUserIds = [];
-                if ($validated['status'] === 'Colaborador Integral') {
-                    $equipUserIds = [$validated['usuario_integral']];
+                // Preparar a nova lista de usuários com seus turnos
+                $novosUsuarios = [];
+
+                if ($validated['status'] === 'Almoxarifado') {
+                    // Não tem usuários no almoxarifado
+                } elseif ($validated['status'] === 'Colaborador Integral') {
+                    if (!empty($validated['usuario_integral'])) {
+                        $novosUsuarios[$validated['usuario_integral']] = [
+                            'turno' => null
+                        ];
+                    }
                 } elseif ($validated['status'] === 'Colaborador Meio Período') {
-                    $equipUserIds = $validated['usuarios'];
+                    if (!empty($request->usuario_manha)) {
+                        $novosUsuarios[$request->usuario_manha] = [
+                            'turno' => 'manha'
+                        ];
+                    }
+
+                    if (!empty($request->usuario_tarde)) {
+                        $novosUsuarios[$request->usuario_tarde] = [
+                            'turno' => 'tarde'
+                        ];
+                    }
                 }
 
+                // Processar usuários atuais (remover ou atualizar)
+                foreach ($atuaisUsuarios as $userId => $userData) {
+                    if (!array_key_exists($userId, $novosUsuarios)) {
+                        // Usuário não está mais associado - remove
+                        $maquina->usuarios()->detach($userId);
+                        $this->historicoService->registrar($descricaoDes, $userId, $maquina->id, null);
+                    } elseif ($userData['pivot']['turno'] !== $novosUsuarios[$userId]['turno']) {
+                        // Usuário continua, mas mudou de turno - atualiza
+                        $maquina->usuarios()->updateExistingPivot($userId, [
+                            'turno' => $novosUsuarios[$userId]['turno']
+                        ]);
+                        // Opcional: registrar mudança de turno no histórico
+                    }
+                    // Se não caiu em nenhuma condição, o usuário continua com o mesmo turno
+                }
+
+                // Adicionar novos usuários
+                foreach ($novosUsuarios as $userId => $userData) {
+                    if (!array_key_exists($userId, $atuaisUsuarios)) {
+                        // Novo usuário - adiciona
+                        $maquina->usuarios()->attach($userId, [
+                            'turno' => $userData['turno']
+                        ]);
+                        $this->historicoService->registrar($descricaoAtrib, $userId, $maquina->id, null);
+                    }
+                }
+
+                // 6. Histórico para equipamentos
+                $userIds = array_keys($novosUsuarios);
                 if ($validated['status'] === 'Almoxarifado') {
                     // Desatribui tudo
                     foreach ($removedEquipIds as $equipId) {
                         $this->historicoService->registrar($descricaoDes, null, $maquina->id, $equipId);
                     }
                 } else {
-                    // Desatribuição + Atribuição
-                    foreach ($equipUserIds as $uId) {
+                    // Desatribuição
+                    foreach ($userIds as $uId) {
                         foreach ($removedEquipIds as $equipId) {
                             $this->historicoService->registrar($descricaoDes, $uId, $maquina->id, $equipId);
                         }
+                    }
+
+                    // Atribuição
+                    foreach ($userIds as $uId) {
                         foreach ($addedEquipIds as $equipId) {
                             $this->historicoService->registrar($descricaoAtrib, $uId, $maquina->id, $equipId);
                         }
@@ -261,7 +327,7 @@ class MaquinaController extends Controller
                 }
 
                 // Se tudo deu certo, confirmamos a transação
-                return redirect()->route('maquinas.index')->with('success', 'Máquina atualizada com sucesso!');
+                return redirect()->route('patrimonios.index')->with('success', 'Máquina atualizada com sucesso!');
             } catch (\Exception $e) {
                 // Em caso de erro, a transação será revertida (rollback)
                 throw $e;
@@ -322,7 +388,7 @@ class MaquinaController extends Controller
                 $message .= ' Equipamentos vinculados a máquina foram enviados para o almoxarifado.';
             }
 
-            return redirect()->route('maquinas.index')->with('success', $message);
+            return redirect()->route('patrimonios.index')->with('success', $message);
         } catch (\Exception $e) {
             return redirect()->back()->withErrors(['error' => 'Erro ao excluir a máquina.'])->withInput();
         }

@@ -37,7 +37,7 @@ class User extends Authenticatable
 
     public function maquina()
     {
-        return $this->belongsToMany(Maquina::class, 'maquina_user')->withTimestamps();
+        return $this->belongsToMany(Maquina::class, 'maquina_user')->withPivot('turno');
     }
 
     /**

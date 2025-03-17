@@ -14,7 +14,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/login');
 
-
+Route::get('/teste', function () {
+    return view('layouts.teste');
+});
 
 Route::get('users/create', [UserController::class, 'create'])->name('users.create');
 Route::post('users', [UserController::class, 'store'])->name('users.store');

@@ -18,7 +18,7 @@ class UserPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $authUser, User $user): bool
+    public function view(?User $authUser = null, User $user): bool
     {
         return true;
     }
@@ -26,7 +26,7 @@ class UserPolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $authUser): bool
+    public function create(?User $authUser = null): bool
     {
         return true;
     }

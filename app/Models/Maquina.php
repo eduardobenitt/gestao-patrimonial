@@ -19,7 +19,28 @@ class Maquina extends Model
 
     public function usuarios()
     {
-        return $this->belongsToMany(User::class, 'maquina_user');
+        return $this->belongsToMany(User::class, 'maquina_user')->withPivot('turno');
+    }
+
+    public function usuariosIntegrais()
+    {
+        return $this->belongsToMany(User::class, 'maquina_user')
+            ->withPivot('turno')
+            ->whereNull('maquina_user.turno');
+    }
+
+    public function usuariosManha()
+    {
+        return $this->belongsToMany(User::class, 'maquina_user')
+            ->withPivot('turno')
+            ->wherePivot('turno', 'manha');
+    }
+
+    public function usuariosTarde()
+    {
+        return $this->belongsToMany(User::class, 'maquina_user')
+            ->withPivot('turno')
+            ->wherePivot('turno', 'tarde');
     }
 
     public function equipamentos()

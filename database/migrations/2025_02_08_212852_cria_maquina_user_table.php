@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('maquina_user',function (Blueprint $table){
+        Schema::create('maquina_user', function (Blueprint $table) {
             $table->id();
             $table->foreignId('maquina_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->enum('turno',['Manhã','Tarde']);
+            $table->enum('turno', ['manha', 'tarde']);
             $table->timestamps();
         });
     }
