@@ -5,7 +5,12 @@ import Inspect from "vite-plugin-inspect";
 export default defineConfig({
     plugins: [
         laravel({
-            input: ["resources/css/app.css", "resources/js/app.js"],
+            input: [
+                "resources/css/app.css",
+                "resources/css/login.css",
+                "resources/js/app.js",
+                "resources/js/login_script.js",
+            ],
             refresh: true,
         }),
         Inspect(),
