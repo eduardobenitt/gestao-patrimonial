@@ -88,7 +88,7 @@
 
                     <!-- Informações Adicionais -->
                     <div class="text-center mt-4 text-white-50">
-                        <p class="mb-1 small">© {{ date('Y') }} Seu Sistema | Todos os direitos reservados</p>
+                        <p class="mb-1 small">© {{ date('Y') }} AssetFlow | Todos os direitos reservados</p>
                         <p class="small">v1.0.0</p>
                     </div>
                 </div>
