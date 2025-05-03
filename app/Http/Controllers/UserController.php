@@ -66,7 +66,7 @@ class UserController extends Controller
                 'regime' => $validated['regime'] ?? 'In Office',
             ]);
 
-            return redirect()->route('login')->with('success', 'Usuário cadastrado com sucesso!');
+            return redirect()->route('users.index')->with('success', 'Usuário cadastrado com sucesso!');
         } catch (\Exception $e) {
             return redirect()->back()->withErrors(['error' => 'Erro ao cadastrar usuário.'])->withInput();
         }
