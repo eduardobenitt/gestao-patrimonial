@@ -11,7 +11,7 @@
                         <div class="card-body p-5">
                             <!-- Logo e Título -->
                             <div class="text-center mb-4">
-                                <h4 class="text-white mb-1">Bem-vindo ao Sistema</h4>
+                                <h4 class="text-white mb-1">Bem-vindo ao AssetFlow</h4>
                                 <p class="text-white-50">Acesse sua conta para continuar</p>
                             </div>
 
