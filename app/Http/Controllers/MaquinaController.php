@@ -141,7 +141,7 @@ class MaquinaController extends Controller
 
 
 
-            return redirect()->route('maquinas.index')->with('success', 'Máquina cadastrada com sucesso!');
+            return redirect()->route('patrimonios.index')->with('success', 'Máquina cadastrada com sucesso!');
         } catch (\Exception $e) {
             return redirect()->back()->withErrors(['error' => 'Erro ao cadastrar Máquina.'])->withInput();
         }

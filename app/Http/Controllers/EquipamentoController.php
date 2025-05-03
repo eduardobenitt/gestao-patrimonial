@@ -47,7 +47,7 @@ class EquipamentoController extends Controller
 
             Equipamento::create($validated);
 
-            return redirect()->route('equipamentos.index')->with('success', 'Equipamento cadastrado com sucesso!');
+            return redirect()->route('patrimonios.index')->with('success', 'Equipamento cadastrado com sucesso!');
         } catch (\Exception $e) {
             return redirect()->back()->withErrors(['error' => 'Erro ao cadastrar equipamento.'])->withInput();
         }
@@ -88,7 +88,7 @@ class EquipamentoController extends Controller
 
             $equipamento->update($validated);
 
-            return redirect()->route('equipamentos.index')->with('success', 'Equipamento atualizado com sucesso!');
+            return redirect()->route('patrimonios.index')->with('success', 'Equipamento atualizado com sucesso!');
         } catch (\Exception $e) {
             return redirect()->back()->withErrors(['error' => 'Erro ao editar equipamento.'])->withInput();
         }
