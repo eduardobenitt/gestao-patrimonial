@@ -172,7 +172,7 @@ class UserController extends Controller
 
         // 3. Disparar e-mail em background para cada admin
         Mail::to($admins)
-            ->queue(new UserInactivatedMail($user, $patrimonios));
+            ->send(new UserInactivatedMail($user, $patrimonios));
 
 
         return redirect()->route('users.index')->with('success', 'Usuário inativado com sucesso!');
