@@ -14,10 +14,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/login');
 
-Route::get('/teste', function () {
-    return view('layouts.teste');
-});
-
 Route::get('users/create', [UserController::class, 'create'])->name('users.create');
 Route::post('users', [UserController::class, 'store'])->name('users.store');
 
@@ -38,10 +34,21 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('users', UserController::class)->except(['create', 'store']);
     Route::get('/patrimonios', [App\Http\Controllers\PatrimonioController::class, 'index'])->name('patrimonios.index');
     Route::post('users/inactivate', [UserController::class, 'inactivate'])->name('users.inactivate');
+    Route::get('users/inativados', [UserController::class, 'inativados'])->name('user.inativados');
 
     Route::resource('produtos', ProdutoController::class);
     Route::resource('maquinas', MaquinaController::class);
     Route::resource('equipamentos', EquipamentoController::class);
+
+    // routes/web.php
+    Route::get('export/machines',  [\App\Http\Controllers\ExportController::class, 'machines'])
+        ->name('export.machines');
+
+    Route::get('export/equipments', [\App\Http\Controllers\ExportController::class, 'equipments'])
+        ->name('export.equipments');
+
+    Route::get('export/changes',   [\App\Http\Controllers\ExportController::class, 'history'])
+        ->name('export.changes');
 });
 
 require __DIR__ . '/auth.php';

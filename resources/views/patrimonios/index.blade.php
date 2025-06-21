@@ -7,6 +7,13 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="mb-0">Patrimônios</h1>
 
+            <div class="mb-4">
+                <a href="{{ route('export.machines') }}" class="btn btn-sm btn-primary">Exportar Máquinas</a>
+                <a href="{{ route('export.equipments') }}" class="btn btn-sm btn-secondary">Exportar Equipamentos</a>
+                <a href="{{ route('export.changes') }}" class="btn btn-sm btn-info">Exportar Histórico</a>
+            </div>
+
+
             <div class="btn-group" role="group" aria-label="Tipo de patrimônio">
                 <button type="button" class="btn btn-primary active" id="btn-maquinas">Máquinas</button>
                 <button type="button" class="btn btn-outline-primary" id="btn-equipamentos">Equipamentos</button>

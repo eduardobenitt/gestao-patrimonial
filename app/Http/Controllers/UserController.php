@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use PhpParser\Node\Expr\Cast\String_;
 use Symfony\Component\Translation\CatalogueMetadataAwareInterface;
+use App\Mail\UserInactivatedMail;
+use Illuminate\Support\Facades\Mail;
 
 class UserController extends Controller
 {
@@ -156,6 +158,29 @@ class UserController extends Controller
             'status' => 'Inativo',
         ]);
 
+        // montar lista de patrimônios
+        $patrimonios = [];
+        foreach ($user->maquinas as $maquina) {
+            $patrimonios[] = "Máquina: {$maquina->patrimonio}";
+            foreach ($maquina->equipamentos as $eq) {
+                $patrimonios[] = "Equipamento: {$eq->patrimonio}";
+            }
+        }
+
+        // 2. Buscar todos os admins
+        $admins = User::where('role', 'admin')->get();
+
+        // 3. Disparar e-mail em background para cada admin
+        Mail::to($admins)
+            ->queue(new UserInactivatedMail($user, $patrimonios));
+
+
         return redirect()->route('users.index')->with('success', 'Usuário inativado com sucesso!');
+    }
+
+    public function inativados()
+    {
+        $users = User::orderBy('name')->get();
+        return view("users.inativados", compact('users'));
     }
 }
