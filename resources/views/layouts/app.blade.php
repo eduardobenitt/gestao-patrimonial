@@ -148,6 +148,14 @@
                             <span>Produtos</span>
                         </a>
                     </li>
+
+                    <li>
+                        <a href="{{ route('users.inativados') }}"
+                            class="nav-link sidebar-link {{ request()->routeIs('users.inativados') ? 'active' : '' }}">
+                            <i class="bi bi-person-slash"></i>
+                            <span>Inativados</span>
+                        </a>
+                    </li>
                 @endif
 
                 <li>

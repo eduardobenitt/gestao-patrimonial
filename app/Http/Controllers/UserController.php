@@ -21,7 +21,7 @@ class UserController extends Controller
 
     public function index()
     {
-        $users = User::orderBy('name')->get();
+        $users = User::where('status', 'Ativo')->orderBy('name')->get();
         return view("users.index", compact('users'));
     }
 
@@ -180,7 +180,7 @@ class UserController extends Controller
 
     public function inativados()
     {
-        $users = User::orderBy('name')->get();
+        $users = User::where('status', 'Inativo')->orderBy('name')->get();
         return view("users.inativados", compact('users'));
     }
 }
