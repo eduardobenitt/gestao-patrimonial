@@ -14,8 +14,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/users');
 
-Route::get('users/create', [UserController::class, 'create'])->name('users.create');
-Route::post('users', [UserController::class, 'store'])->name('users.store');
+//Route::get('users/create', [UserController::class, 'create'])->name('users.create');
+//Route::post('users', [UserController::class, 'store'])->name('users.store');
 
 
 Route::middleware(['auth'])->group(function () {
@@ -31,7 +31,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::get('users/inativados', [UserController::class, 'inativados'])->name('users.inativados');
-    Route::resource('users', UserController::class)->except(['create', 'store']);
+    Route::resource('users', UserController::class);
     Route::get('/patrimonios', [App\Http\Controllers\PatrimonioController::class, 'index'])->name('patrimonios.index');
     Route::post('users/inactivate', [UserController::class, 'inactivate'])->name('users.inactivate');
 

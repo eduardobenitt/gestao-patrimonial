@@ -5,8 +5,13 @@
 @section('content')
     <div class="container">
 
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0 text-gray-800"><i class="bi bi-person-slash"></i> Usuários Inativados</h1>
+        </div>
 
         <div class="d-flex justify-content-between mb-3">
+
+
             <div class="w-50">
                 <input type="text" class="form-control" id="search-users" placeholder="Buscar usuário...">
             </div>

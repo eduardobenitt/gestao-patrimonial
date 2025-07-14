@@ -36,13 +36,15 @@
             <a class="navbar-brand app-title" href="#">AssetFlow</a>
             @if (auth()->user()->role !== 'usuario')
                 {{-- Área direita da navbar --}}
+                {{--
                 <div>
-                    {{-- Ícone de notificação --}}
+                    -- Ícone de notificação
                     <button class="btn text-white notification-btn" type="button">
                         <i class="bi bi-bell-fill fs-5"></i>
                         <span class="notification-badge"></span>
                     </button>
                 </div>
+                 --}}
             @endif
 
 

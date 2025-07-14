@@ -72,16 +72,6 @@
                                         <i class="bi bi-box-arrow-in-right me-2"></i>Entrar
                                     </button>
                                 </div>
-
-                                <!-- Register Link -->
-                                <div class="text-center">
-                                    <p class="text-white-50 mb-0">
-                                        Não tem uma conta?
-                                        <a href="{{ route('users.create') }}" class="text-white fw-medium">
-                                            Cadastre-se
-                                        </a>
-                                    </p>
-                                </div>
                             </form>
                         </div>
                     </div>

@@ -5,7 +5,7 @@
 @section('content')
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="mb-0">Patrimônios</h1>
+            <h1 class="h3 mb-0 text-gray-800"><i class="bi bi-pc-display"></i> Patrimônios</h1>
 
             <div class="mb-4">
                 <a href="{{ route('export.machines') }}" class="btn btn-sm btn-primary">Exportar Máquinas</a>
@@ -23,7 +23,7 @@
         <!-- Conteúdo das Máquinas -->
         <div id="content-maquinas">
             <div class="d-flex justify-content-between mb-3">
-                <div>
+                <div class="w-50">
                     <input type="text" class="form-control" id="search-maquinas" placeholder="Buscar máquina...">
                 </div>
                 <a href="{{ route('maquinas.create') }}" class="btn btn-success">
