@@ -12,60 +12,98 @@ use Illuminate\Support\Facades\Response;
 
 class ExportController extends Controller
 {
-    // 1. Máquinas
     public function machines()
     {
-        $filename = 'machines_' . now()->format('Ymd_His') . '.csv';
-        $machines = Maquina::select('id', 'patrimonio', 'fabricante', 'status')->get();
+        $filename = 'maquinas_' . now()->format('Ymd_His') . '.csv';
+
+        $machines = Maquina::with('user')->get();
 
         $callback = function () use ($machines) {
             $out = fopen('php://output', 'w');
-            fputcsv($out, ['id', 'patrimonio', 'fabricante', 'status']);
+
+            // Adiciona BOM para UTF-8
+            fwrite($out, "\xEF\xBB\xBF");
+
+            // Cabeçalho do CSV
+            fputcsv($out, ['ID', 'Patrimônio', 'Fabricante', 'Status', 'Usuário Responsável']);
+
             foreach ($machines as $m) {
-                fputcsv($out, $m->toArray());
+                fputcsv($out, [
+                    $m->id,
+                    $m->patrimonio,
+                    $m->fabricante,
+                    $m->status,
+                    $m->user->name ?? 'Almoxarifado',
+                ]);
             }
+
             fclose($out);
         };
 
         return Response::stream($callback, 200, [
-            "Content-Type"        => "text/csv",
+            "Content-Type"        => "text/csv; charset=UTF-8",
             "Content-Disposition" => "attachment; filename=\"$filename\"",
         ]);
     }
 
-    // 2. Equipamentos
+
     public function equipments()
     {
-        $filename = 'equipments_' . now()->format('Ymd_His') . '.csv';
-        $eqs = Equipamento::select('id', 'patrimonio', 'fabricante', 'maquina_id')->get();
+        $filename = 'equipamentos_' . now()->format('Ymd_His') . '.csv';
+
+        $eqs = Equipamento::with('maquina')->get();
 
         $callback = function () use ($eqs) {
             $out = fopen('php://output', 'w');
-            fputcsv($out, ['id', 'patrimonio', 'fabricante', 'maquina_id']);
+
+            // Adiciona BOM para UTF-8
+            fwrite($out, "\xEF\xBB\xBF");
+
+            // Cabeçalho do CSV
+            fputcsv($out, ['ID', 'Patrimônio do Equipamento', 'Fabricante', 'Máquina (Patrimônio)']);
+
             foreach ($eqs as $e) {
-                fputcsv($out, $e->toArray());
+                fputcsv($out, [
+                    $e->id,
+                    $e->patrimonio,
+                    $e->fabricante,
+                    $e->maquina->patrimonio ?? 'Almoxarifado',
+                ]);
             }
+
             fclose($out);
         };
 
         return Response::stream($callback, 200, [
-            "Content-Type"        => "text/csv",
+            "Content-Type"        => "text/csv; charset=UTF-8",
             "Content-Disposition" => "attachment; filename=\"$filename\"",
         ]);
     }
+
 
     // 3. Histórico de alterações
     public function history()
     {
         $filename = 'history_' . now()->format('Ymd_His') . '.csv';
-        $hist = HistoricoAlteracao::select('descricao', 'user_id', 'maquina_id', 'equipamento_id', 'alterado_em')->get();
+        $hist = HistoricoAlteracao::with(['user'], ['maquina'], ['equipamento'])->get();
 
         $callback = function () use ($hist) {
             $out = fopen('php://output', 'w');
-            fputcsv($out, ['descricao', 'user_id', 'maquina_id', 'equipamento_id', 'alterado_em']);
+
+            fwrite($out, "\xEF\xBB\xBF");
+
+            fputcsv($out, ['Descrição', 'Usuário', 'Máquina', 'Equipamento', 'Data']);
+
             foreach ($hist as $h) {
-                fputcsv($out, $h->toArray());
+                fputcsv($out, [
+                    $h->descricao,
+                    $h->user->name ?? 'N/A',
+                    $h->maquina->patrimonio ?? 'N/A',
+                    $h->equipamento->patrimonio ?? 'N/A',
+                    $h->alterado_em,
+                ]);
             }
+
             fclose($out);
         };
 

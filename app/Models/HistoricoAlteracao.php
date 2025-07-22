@@ -27,4 +27,15 @@ class HistoricoAlteracao extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function maquina()
+    {
+        return $this->belongsTo(Maquina::class, 'maquina_id');
+    }
+
+
+    public function equipamento()
+    {
+        return $this->belongsTo(Equipamento::class, 'equipamento_id');
+    }
 }
