@@ -181,7 +181,6 @@
             <div class="modal-content">
                 <form id="confirmForm" method="POST" action="">
                     @csrf
-                    @method('DELETE')
                     <div class="modal-header">
                         <h5 class="modal-title" id="confirmModalLabel">Confirmação</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
