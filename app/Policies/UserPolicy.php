@@ -36,16 +36,10 @@ class UserPolicy
      */
     public function update(User $authUser, User $user): bool
     {
-        if ($authUser->isAdmin()) {
-            return true;
-        }
-
-        if ($authUser->isTecnico() && $user->role !== 'admin') {
-            return true;
-        }
-
-        return false;
+        // Admin e Técnico podem editar qualquer usuário
+        return $authUser->isAdmin() || $authUser->isTecnico();
     }
+
 
     /**
      * Determine whether the user can delete the model.

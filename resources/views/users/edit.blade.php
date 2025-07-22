@@ -163,7 +163,8 @@
                                                 <div class="col-md-3">
                                                     <label for="role" class="form-label fw-bold">Permissão</label>
                                                     <select id="role" name="role"
-                                                        class="form-select @error('role') is-invalid @enderror">
+                                                        class="form-select @error('role') is-invalid @enderror"
+                                                        @cannot('promover', $user) disabled @endcannot>
                                                         <option value="usuario"
                                                             {{ old('role', $user->role) === 'usuario' ? 'selected' : '' }}>
                                                             Usuário
@@ -181,6 +182,7 @@
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
                                                 </div>
+
 
                                                 <div class="col-md-3">
                                                     <label for="status" class="form-label fw-bold">Status</label>
