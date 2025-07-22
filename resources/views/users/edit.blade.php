@@ -178,6 +178,12 @@
                                                             Admin
                                                         </option>
                                                     </select>
+
+                                                    {{-- Garante que a role atual seja enviada mesmo com o select disabled --}}
+                                                    @cannot('promover', $user)
+                                                        <input type="hidden" name="role" value="{{ $user->role }}">
+                                                    @endcannot
+
                                                     @error('role')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
